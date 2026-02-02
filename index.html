@@ -4,460 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TROQUELapp - Buscador RR</title>
-    <!-- Tailwind CSS para diseño -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PapaParse para leer tu Google Sheet -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <!-- Iconos FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
     <style>
-        /* Estilos personalizados */
-        body { background-color: #121212; color: #e5e5e5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .input-dark { 
-            background-color: #2d2d2d; 
-            border: 1px solid #404040; 
-            color: white; 
-            transition: all 0.2s;
-        }
-        .input-dark:focus { 
-            border-color: #f97316; 
-            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
-            outline: none; 
-        }
-        .btn-naranja { 
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            color: white; 
-            font-weight: bold; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
+        body { background-color: #121212; color: #e5e5e5; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .input-dark { background-color: #2d2d2d; border: 1px solid #404040; color: white; transition: all 0.2s; }
+        .input-dark:focus { border-color: #f97316; box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2); outline: none; }
+        .btn-naranja { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; font-weight: bold; }
         .btn-naranja:active { transform: scale(0.98); }
-        .card-result { 
-            background-color: #1e1e1e; 
-            border-left: 4px solid #f97316; 
-            transition: transform 0.2s;
-        }
-        .card-result:hover { background-color: #252525; }
-        
-        /* Animación suave */
+        .logo-svg { height: 110px; width: auto; margin-bottom: 0.5rem; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content { animation: fadeIn 0.2s ease-out; }
-
-        /* Ajuste para el SVG del logo */
-        .logo-svg {
-            height: 110px; /* Aumentado de 60px a 110px */
-            width: auto;
-            margin-bottom: 0.5rem;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4 pb-20">
 
-    <!-- HEADER -->
     <div class="w-full max-w-md text-center mb-6 mt-4 flex flex-col items-center">
-        <!-- LOGO RR SVG -->
         <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 445.41 237.71">
-          <g>
-            <path fill="#ffffff" d="M201.77,211.05h1.74l7.49,16.56h-2l-1.93-4.34h-8.95l-1.95,4.34h-1.9l7.49-16.56h0ZM206.35,221.59l-3.73-8.38-3.76,8.38h7.49,0Z"/>
-            <path fill="#ffffff" d="M221.28,211.16h7c1.88,0,3.36.54,4.3,1.46.68.71,1.06,1.57,1.06,2.63v.05c0,2.14-1.31,3.24-2.61,3.8,1.95.59,3.52,1.71,3.52,3.97v.05c0,2.82-2.37,4.49-5.96,4.49h-7.3v-16.44h0ZM231.76,215.51c0-1.62-1.29-2.68-3.64-2.68h-5v5.66h4.86c2.23,0,3.78-1.01,3.78-2.94v-.05h0ZM228.3,220.14h-5.19v5.8h5.52c2.49,0,4.04-1.1,4.04-2.94v-.05c0-1.79-1.5-2.82-4.37-2.82h0Z"/>
-            <path fill="#ffffff" d="M237.18,221.57v-.05c0-3.5,2.46-6.32,5.82-6.32,3.59,0,5.66,2.87,5.66,6.41,0,.24,0,.38-.02.59h-9.63c.26,2.63,2.11,4.11,4.27,4.11,1.67,0,2.84-.68,3.83-1.71l1.13,1.01c-1.22,1.36-2.7,2.28-5,2.28-3.33,0-6.06-2.56-6.06-6.32h0ZM246.83,220.86c-.19-2.21-1.46-4.13-3.88-4.13-2.11,0-3.71,1.76-3.95,4.13h7.83Z"/>
-            <path fill="#ffffff" d="M251.08,221.59v-.05c0-3.43,2.68-6.34,6.34-6.34s6.32,2.87,6.32,6.29v.05c0,3.43-2.7,6.34-6.36,6.34s-6.29-2.87-6.29-6.29h-.01ZM261.88,221.59v-.05c0-2.61-1.95-4.74-4.51-4.74s-4.44,2.14-4.44,4.7v.05c0,2.61,1.93,4.72,4.49,4.72s4.46-2.11,4.46-4.67h0Z"/>
-            <path fill="#ffffff" d="M267,215.46h1.81v2.11c.8-1.32,2.07-2.37,4.16-2.37,2.94,0,4.65,1.97,4.65,4.86v7.54h-1.81v-7.09c0-2.25-1.22-3.66-3.36-3.66s-3.64,1.53-3.64,3.8v6.95h-1.81v-12.14Z"/>
-            <path fill="#ffffff" d="M282.1,224.39v-7.33h-1.69v-1.6h1.69v-3.66h1.81v3.66h3.85v1.6h-3.85v7.09c0,1.48.82,2.02,2.04,2.02.61,0,1.13-.12,1.76-.42v1.55c-.63.33-1.31.52-2.18.52-1.95,0-3.43-.96-3.43-3.43h0Z"/>
-            <path fill="#ffffff" d="M290.03,224.08v-.05c0-2.56,2.11-3.92,5.19-3.92,1.55,0,2.65.21,3.73.52v-.42c0-2.18-1.34-3.31-3.62-3.31-1.43,0-2.56.38-3.69.89l-.54-1.48c1.34-.61,2.65-1.01,4.42-1.01s3.03.45,3.92,1.34c.82.82,1.24,2,1.24,3.55v7.42h-1.74v-1.83c-.85,1.1-2.25,2.09-4.39,2.09-2.25,0-4.53-1.29-4.53-3.78h0ZM298.98,223.14v-1.17c-.89-.26-2.09-.52-3.57-.52-2.28,0-3.55.99-3.55,2.51v.05c0,1.53,1.41,2.42,3.05,2.42,2.23,0,4.06-1.36,4.06-3.29h.01Z"/>
-            <path fill="#ffffff" d="M304.41,229.72l.82-1.41c1.39,1.01,2.94,1.55,4.67,1.55,2.68,0,4.42-1.48,4.42-4.32v-1.43c-1.06,1.41-2.54,2.56-4.77,2.56-2.91,0-5.71-2.18-5.71-5.68v-.05c0-3.55,2.82-5.73,5.71-5.73,2.28,0,3.76,1.13,4.74,2.44v-2.18h1.81v10.03c0,1.88-.56,3.31-1.55,4.3-1.08,1.08-2.7,1.62-4.63,1.62s-3.9-.56-5.52-1.69h0ZM314.36,220.96v-.05c0-2.49-2.16-4.11-4.46-4.11s-4.2,1.6-4.2,4.09v.05c0,2.44,1.95,4.13,4.2,4.13s4.46-1.67,4.46-4.11Z"/>
-            <path fill="#ffffff" d="M326.76,219.43v-.05c0-4.65,3.48-8.5,8.31-8.5,2.98,0,4.77,1.06,6.41,2.61l-1.27,1.36c-1.39-1.32-2.94-2.25-5.17-2.25-3.64,0-6.36,2.96-6.36,6.74v.05c0,3.8,2.75,6.79,6.36,6.79,2.25,0,3.73-.87,5.31-2.37l1.22,1.2c-1.71,1.74-3.59,2.89-6.58,2.89-4.74,0-8.24-3.73-8.24-8.45v-.02Z"/>
-            <path fill="#ffffff" d="M343.62,221.59v-.05c0-3.43,2.68-6.34,6.34-6.34s6.32,2.87,6.32,6.29v.05c0,3.43-2.7,6.34-6.36,6.34s-6.29-2.87-6.29-6.29h-.01ZM354.42,221.59v-.05c0-2.61-1.95-4.74-4.51-4.74s-4.44,2.14-4.44,4.7v.05c0,2.61,1.93,4.72,4.49,4.72s4.46-2.11,4.46-4.67h0Z"/>
-            <path fill="#ffffff" d="M359.54,215.46h1.81v2.04c.8-1.2,1.88-2.3,3.92-2.3s3.24,1.06,3.9,2.42c.87-1.34,2.16-2.42,4.27-2.42,2.79,0,4.51,1.88,4.51,4.88v7.51h-1.81v-7.09c0-2.35-1.17-3.66-3.15-3.66-1.83,0-3.36,1.36-3.36,3.76v7h-1.78v-7.14c0-2.28-1.2-3.62-3.12-3.62s-3.38,1.6-3.38,3.83v6.93h-1.81v-12.14h0Z"/>
-            <path fill="#ffffff" d="M381.8,215.46h1.81v2.44c.99-1.46,2.42-2.7,4.65-2.7,2.91,0,5.8,2.3,5.8,6.29v.05c0,3.97-2.86,6.32-5.8,6.32-2.25,0-3.71-1.22-4.65-2.58v6.08h-1.81v-15.9h0ZM392.2,221.57v-.05c0-2.87-1.97-4.7-4.27-4.7s-4.39,1.9-4.39,4.67v.05c0,2.82,2.14,4.7,4.39,4.7s4.27-1.74,4.27-4.67Z"/>
-            <path fill="#ffffff" d="M396.47,224.08v-.05c0-2.56,2.11-3.92,5.19-3.92,1.55,0,2.65.21,3.73.52v-.42c0-2.18-1.34-3.31-3.62-3.31-1.43,0-2.56.38-3.69.89l-.54-1.48c1.34-.61,2.65-1.01,4.42-1.01s3.03.45,3.92,1.34c.82.82,1.24,2,1.24,3.55v7.42h-1.74v-1.83c-.85,1.1-2.25,2.09-4.39,2.09-2.25,0-4.53-1.29-4.53-3.78h0ZM405.42,223.14v-1.17c-.89-.26-2.09-.52-3.57-.52-2.28,0-3.55.99-3.55,2.51v.05c0,1.53,1.41,2.42,3.05,2.42,2.23,0,4.06-1.36,4.06-3.29h.01Z"/>
-            <path fill="#ffffff" d="M410.98,215.46h1.81v2.11c.8-1.32,2.07-2.37,4.16-2.37,2.94,0,4.65,1.97,4.65,4.86v7.54h-1.81v-7.09c0-2.25-1.22-3.66-3.36-3.66s-3.64,1.53-3.64,3.8v6.95h-1.81v-12.14Z"/>
-            <path fill="#ffffff" d="M434.18,215.46h1.93l-5.1,12.54c-1.03,2.51-2.21,3.43-4.04,3.43-1.01,0-1.76-.21-2.58-.61l.61-1.43c.59.3,1.13.45,1.9.45,1.08,0,1.76-.56,2.49-2.28l-5.52-12.09h2l4.41,10.12,3.9-10.12h0Z"/>
-          </g>
-          <g>
-            <path fill="#ef7d00" d="M312.16,3.22c-52.77,0-95.56,42.79-95.56,95.56s42.79,95.56,95.56,95.56v-3.19c-51.01,0-92.38-41.37-92.38-92.38S261.15,6.4,312.16,6.4v-3.19h0Z"/>
-            <path fill="#ffffff" d="M101.92,3.22C49.15,3.22,6.35,46.01,6.35,98.78s42.79,95.56,95.56,95.56,95.56-42.79,95.56-95.56S154.69,3.22,101.92,3.22ZM82.59,137.01c-7.81,0-11.25-5.46-13.67-9.31-2.47-4.18-5.08-8.62-7.83-13.4-2-3.49-2.28-5.71-2.28-9.7v-9.92h10.17c4.68-.01,9.27-4.1,9.28-9.01,0-4.61-4.23-8.36-9.81-8.36h-13.82v52.68c0,3.86-3.16,7.03-7.03,7.03h-15.19V60.55h40.04c16.36,0,25.95,11.68,26.2,23.54.22,10.01-6.02,20.16-17.59,23.51l18.53,29.4h-17.01.01ZM156.19,137.01c-7.81,0-11.25-5.46-13.67-9.31-2.47-4.18-5.09-8.62-7.83-13.4-2-3.49-2.28-5.71-2.28-9.7v-9.92h10.17c4.68-.01,9.28-4.1,9.28-9,0-4.61-4.23-8.36-9.81-8.36h-13.82v52.68c0,3.86-3.16,7.03-7.03,7.03h-15.19V60.55h40.04c16.36,0,25.95,11.68,26.2,23.54.22,10.01-6.02,20.15-17.59,23.51l18.53,29.4h-17.01,0Z"/>
-            <path fill="#ec6608" d="M430.5,108.13c0-.5-.14-.91-.43-1.23-.28-.32-.65-.58-1.11-.8-.46-.21-.99-.4-1.6-.56-.6-.16-1.23-.32-1.88-.47-.83-.23-1.63-.48-2.4-.78-.76-.3-1.44-.69-2.02-1.17-.58-.47-1.05-1.08-1.39-1.81-.34-.73-.52-1.62-.52-2.67,0-1.3.23-2.42.7-3.37.47-.95,1.09-1.74,1.88-2.37.79-.62,1.71-1.08,2.76-1.39,1.05-.3,2.15-.45,3.32-.45,1.42,0,2.75.11,4,.34,1.24.24,2.37.53,3.38.9v4.63c-.53-.18-1.08-.34-1.67-.49-.58-.16-1.17-.29-1.77-.4-.61-.11-1.2-.2-1.79-.28-.59-.07-1.15-.11-1.68-.11-.67,0-1.24.07-1.7.2-.46.12-.84.29-1.13.52-.29.21-.49.46-.62.75-.12.28-.19.57-.19.87,0,.53.14.97.42,1.3.28.34.67.61,1.16.81.5.21,1.02.38,1.56.52s1.07.27,1.58.4c.8.19,1.6.42,2.4.7.8.27,1.52.65,2.16,1.14.64.48,1.16,1.11,1.57,1.89.4.78.61,1.77.61,2.96,0,1.31-.25,2.46-.75,3.43-.49.97-1.19,1.79-2.07,2.43-.88.65-1.95,1.13-3.19,1.44-1.24.31-2.6.47-4.09.47s-2.79-.11-3.97-.34c-1.18-.24-2.15-.52-2.92-.88v-4.59c1.24.47,2.4.78,3.46.95,1.06.16,2.04.25,2.95.25.7,0,1.36-.06,1.97-.16.61-.11,1.14-.27,1.57-.49.44-.23.79-.51,1.05-.85.25-.34.38-.76.38-1.24M408.89,104.96c-.54-.13-1.16-.25-1.87-.34-.7-.11-1.42-.16-2.14-.16-1.39,0-2.49.27-3.3.83-.81.55-1.21,1.39-1.21,2.53,0,.52.09.98.28,1.38.18.39.43.72.74.97s.67.44,1.09.57c.42.13.85.2,1.32.2.57,0,1.12-.08,1.63-.23.52-.16.98-.34,1.42-.58.43-.23.82-.49,1.16-.78s.64-.57.88-.84v-3.55h0ZM409.34,112.4h-.1c-.32.34-.7.68-1.15,1.03-.44.35-.96.69-1.53,1s-1.21.56-1.92.75c-.7.2-1.47.29-2.28.29-1.11,0-2.13-.17-3.1-.52-.96-.34-1.78-.83-2.46-1.48-.69-.65-1.23-1.43-1.62-2.36-.39-.92-.59-1.94-.59-3.08,0-1.24.23-2.37.69-3.36.45-.99,1.09-1.83,1.9-2.52.82-.69,1.79-1.21,2.93-1.57,1.14-.36,2.39-.54,3.77-.54,1.01,0,1.93.07,2.78.2.84.13,1.59.28,2.23.46v-.94c0-.54-.09-1.06-.28-1.57-.18-.5-.47-.95-.88-1.34s-.94-.7-1.6-.93-1.46-.34-2.4-.34c-1.15,0-2.3.12-3.46.38-1.15.26-2.4.65-3.74,1.15v-4.44c1.17-.51,2.41-.9,3.72-1.17,1.32-.28,2.69-.42,4.13-.43,1.7,0,3.19.2,4.45.62,1.27.42,2.33.99,3.19,1.71.86.73,1.5,1.59,1.92,2.58.43.99.63,2.07.63,3.24v8.75c0,1.54.02,2.86.05,3.96s.07,2.09.1,2.95h-5.13l-.24-2.47h-.01ZM391.98,114.84c-.64.2-1.4.34-2.29.46-.88.11-1.71.16-2.48.16-1.95,0-3.55-.31-4.78-.94-1.24-.64-2.12-1.54-2.63-2.73-.37-.85-.55-2-.55-3.46v-12.04h-4.35v-4.68h4.35v-6.5h5.68v6.5h6.71v4.68h-6.71v11.3c0,.9.14,1.56.41,1.99.47.74,1.43,1.11,2.85,1.11.66,0,1.31-.05,1.96-.16s1.26-.24,1.83-.39v4.7h0ZM363.03,95.49c-.71,0-1.36.13-1.92.39-.56.26-1.04.62-1.45,1.08s-.74.99-.97,1.6c-.24.61-.4,1.25-.47,1.94h9.14c0-.69-.09-1.33-.28-1.94-.18-.61-.46-1.14-.81-1.6-.36-.46-.81-.82-1.35-1.08-.53-.26-1.16-.39-1.88-.39h0ZM365.31,110.89c1.11,0,2.25-.11,3.46-.34,1.2-.23,2.42-.55,3.64-.97v4.54c-.74.32-1.87.62-3.38.92-1.52.29-3.1.43-4.72.43s-3.21-.21-4.69-.63c-1.48-.43-2.77-1.11-3.87-2.06-1.11-.94-1.98-2.17-2.63-3.67-.65-1.51-.97-3.32-.97-5.47s.3-3.95.92-5.54c.61-1.58,1.42-2.89,2.45-3.93,1.02-1.04,2.19-1.82,3.51-2.34s2.68-.78,4.09-.78,2.82.22,4.07.67c1.24.45,2.31,1.15,3.21,2.11.91.96,1.61,2.19,2.11,3.7.51,1.51.76,3.3.76,5.36-.02.8-.04,1.48-.07,2.04h-15.24c.08,1.07.32,1.99.72,2.75.4.75.93,1.38,1.57,1.84.65.47,1.41.82,2.27,1.03s1.8.33,2.81.33h-.02ZM337.58,115.47c-2.33,0-4.27-.39-5.81-1.19-1.54-.79-2.69-1.86-3.48-3.2-.42-.72-.72-1.51-.93-2.37-.2-.86-.29-1.83-.29-2.88v-14.2h5.68v13.6c0,.79.06,1.46.16,2.03.11.57.29,1.06.51,1.47.38.7.93,1.23,1.63,1.57s1.55.52,2.52.52c1.02,0,1.9-.2,2.63-.57.72-.38,1.27-.97,1.64-1.75.37-.75.56-1.8.56-3.14v-13.72h5.68v14.2c0,1.89-.33,3.48-.98,4.78-.37.73-.84,1.4-1.42,2-.59.6-1.28,1.11-2.06,1.54-.79.42-1.69.74-2.69.98-1,.23-2.11.34-3.34.34h0ZM316.59,94.23l.25-2.61h4.99v34.4h-5.68v-9.66c0-.69,0-1.33.02-1.91.02-.59.02-1.04.04-1.36h-.04c-.35.29-.76.57-1.21.85-.46.28-.96.54-1.5.77-.55.23-1.14.42-1.78.55-.64.14-1.32.2-2.04.2-1.24,0-2.44-.22-3.61-.65-1.18-.44-2.23-1.14-3.14-2.09-.92-.95-1.65-2.18-2.21-3.68-.55-1.51-.83-3.28-.83-5.35s.29-3.87.85-5.47c.57-1.6,1.33-2.93,2.27-3.99.94-1.05,2.03-1.85,3.25-2.38,1.23-.53,2.48-.8,3.78-.8,1.39,0,2.64.29,3.75.88,1.11.58,2.03,1.35,2.75,2.31h.09ZM311.05,110.94c.57,0,1.11-.07,1.63-.22.51-.14.98-.33,1.42-.55.43-.23.82-.47,1.16-.74s.63-.54.88-.82v-10.31c-.6-.72-1.32-1.35-2.16-1.88-.85-.54-1.78-.82-2.78-.83-.57,0-1.18.11-1.81.34-.63.23-1.23.65-1.78,1.24-.56.59-1.02,1.41-1.36,2.46-.34,1.05-.52,2.33-.52,3.82,0,1.17.11,2.21.34,3.14.23.92.57,1.7,1.01,2.35.45.65,1.01,1.15,1.67,1.49s1.43.52,2.32.52h-.02ZM289.58,80.13h5.97v6.17h-5.97v-6.17ZM289.72,91.62h5.69v23.25h-5.69v-23.25ZM285.89,114.84c-.64.2-1.4.34-2.29.46-.88.11-1.71.16-2.48.16-1.95,0-3.55-.31-4.78-.94-1.24-.64-2.12-1.54-2.63-2.73-.37-.85-.55-2-.55-3.46v-12.04h-4.35v-4.68h4.35v-6.5h5.68v6.5h6.71v4.68h-6.71v11.3c0,.9.14,1.56.41,1.99.47.74,1.43,1.11,2.85,1.11.66,0,1.31-.05,1.96-.16s1.26-.24,1.83-.39v4.7h0ZM251.14,109.95h15.78v4.92h-21.66v-32.1h20.8v4.92h-14.92v8.29h12.81v4.92h-12.81v9.04h0Z"/>
-          </g>
+            <g>
+                <path fill="#ffffff" d="M201.77,211.05h1.74l7.49,16.56h-2l-1.93-4.34h-8.95l-1.95,4.34h-1.9l7.49-16.56h0ZM206.35,221.59l-3.73-8.38-3.76,8.38h7.49,0Z"/>
+                <path fill="#ffffff" d="M221.28,211.16h7c1.88,0,3.36.54,4.3,1.46.68.71,1.06,1.57,1.06,2.63v.05c0,2.14-1.31,3.24-2.61,3.8,1.95.59,3.52,1.71,3.52,3.97v.05c0,2.82-2.37,4.49-5.96,4.49h-7.3v-16.44h0ZM231.76,215.51c0-1.62-1.29-2.68-3.64-2.68h-5v5.66h4.86c2.23,0,3.78-1.01,3.78-2.94v-.05h0ZM228.3,220.14h-5.19v5.8h5.52c2.49,0,4.04-1.1,4.04-2.94v-.05c0-1.79-1.5-2.82-4.37-2.82h0Z"/>
+                <path fill="#ffffff" d="M237.18,221.57v-.05c0-3.5,2.46-6.32,5.82-6.32,3.59,0,5.66,2.87,5.66,6.41,0,.24,0,.38-.02.59h-9.63c.26,2.63,2.11,4.11,4.27,4.11,1.67,0,2.84-.68,3.83-1.71l1.13,1.01c-1.22,1.36-2.7,2.28-5,2.28-3.33,0-6.06-2.56-6.06-6.32h0ZM246.83,220.86c-.19-2.21-1.46-4.13-3.88-4.13-2.11,0-3.71,1.76-3.95,4.13h7.83Z"/>
+                <path fill="#ffffff" d="M251.08,221.59v-.05c0-3.43,2.68-6.34,6.34-6.34s6.32,2.87,6.32,6.29v.05c0,3.43-2.7,6.34-6.36,6.34s-6.29-2.87-6.29-6.29h-.01ZM261.88,221.59v-.05c0-2.61-1.95-4.74-4.51-4.74s-4.44,2.14-4.44,4.7v.05c0,2.61,1.93,4.72,4.49,4.72s4.46-2.11,4.46-4.67h0Z"/>
+                <path fill="#ffffff" d="M267,215.46h1.81v2.11c.8-1.32,2.07-2.37,4.16-2.37,2.94,0,4.65,1.97,4.65,4.86v7.54h-1.81v-7.09c0-2.25-1.22-3.66-3.36-3.66s-3.64,1.53-3.64,3.8v6.95h-1.81v-12.14Z"/>
+                <path fill="#ffffff" d="M282.1,224.39v-7.33h-1.69v-1.6h1.69v-3.66h1.81v3.66h3.85v1.6h-3.85v7.09c0,1.48.82,2.02,2.04,2.02.61,0,1.13-.12,1.76-.42v1.55c-.63.33-1.31.52-2.18.52-1.95,0-3.43-.96-3.43-3.43h0Z"/>
+                <path fill="#ffffff" d="M290.03,224.08v-.05c0-2.56,2.11-3.92,5.19-3.92,1.55,0,2.65.21,3.73.52v-.42c0-2.18-1.34-3.31-3.62-3.31-1.43,0-2.56.38-3.69.89l-.54-1.48c1.34-.61,2.65-1.01,4.42-1.01s3.03.45,3.92,1.34c.82.82,1.24,2,1.24,3.55v7.42h-1.74v-1.83c-.85,1.1-2.25,2.09-4.39,2.09-2.25,0-4.53-1.29-4.53-3.78h0ZM298.98,223.14v-1.17c-.89-.26-2.09-.52-3.57-.52-2.28,0-3.55.99-3.55,2.51v.05c0,1.53,1.41,2.42,3.05,2.42,2.23,0,4.06-1.36,4.06-3.29h.01Z"/>
+                <path fill="#ffffff" d="M304.41,229.72l.82-1.41c1.39,1.01,2.94,1.55,4.67,1.55,2.68,0,4.42-1.48,4.42-4.32v-1.43c-1.06,1.41-2.54,2.56-4.77,2.56-2.91,0-5.71-2.18-5.71-5.68v-.05c0-3.55,2.82-5.73,5.71-5.73,2.28,0,3.76,1.13,4.74,2.44v-2.18h1.81v10.03c0,1.88-.56,3.31-1.55,4.3-1.08,1.08-2.7,1.62-4.63,1.62s-3.9-.56-5.52-1.69h0ZM314.36,220.96v-.05c0-2.49-2.16-4.11-4.46-4.11s-4.2,1.6-4.2,4.09v.05c0,2.44,1.95,4.13,4.2,4.13s4.46-1.67,4.46-4.11Z"/>
+                <path fill="#ffffff" d="M326.76,219.43v-.05c0-4.65,3.48-8.5,8.31-8.5,2.98,0,4.77,1.06,6.41,2.61l-1.27,1.36c-1.39-1.32-2.94-2.25-5.17-2.25-3.64,0-6.36,2.96-6.36,6.74v.05c0,3.8,2.75,6.79,6.36,6.79,2.25,0,3.73-.87,5.31-2.37l1.22,1.2c-1.71,1.74-3.59,2.89-6.58,2.89-4.74,0-8.24-3.73-8.24-8.45v-.02Z"/>
+                <path fill="#ffffff" d="M343.62,221.59v-.05c0-3.43,2.68-6.34,6.34-6.34s6.32,2.87,6.32,6.29v.05c0,3.43-2.7,6.34-6.36,6.34s-6.29-2.87-6.29-6.29h-.01ZM354.42,221.59v-.05c0-2.61-1.95-4.74-4.51-4.74s-4.44,2.14-4.44,4.7v.05c0,2.61,1.93,4.72,4.49,4.72s4.46-2.11,4.46-4.67h0Z"/>
+                <path fill="#ffffff" d="M359.54,215.46h1.81v2.04c.8-1.2,1.88-2.3,3.92-2.3s3.24,1.06,3.9,2.42c.87-1.34,2.16-2.42,4.27-2.42,2.79,0,4.51,1.88,4.51,4.88v7.51h-1.81v-7.09c0-2.35-1.17-3.66-3.15-3.66-1.83,0-3.36,1.36-3.36,3.76v7h-1.78v-7.14c0-2.28-1.2-3.62-3.12-3.62s-3.38,1.6-3.38,3.83v6.93h-1.81v-12.14h0Z"/>
+                <path fill="#ffffff" d="M381.8,215.46h1.81v2.44c.99-1.46,2.42-2.7,4.65-2.7,2.91,0,5.8,2.3,5.8,6.29v.05c0,3.97-2.86,6.32-5.8,6.32-2.25,0-3.71-1.22-4.65-2.58v6.08h-1.81v-15.9h0ZM392.2,221.57v-.05c0-2.87-1.97-4.7-4.27-4.7s-4.39,1.9-4.39,4.67v.05c0,2.82,2.14,4.7,4.39,4.7s4.27-1.74,4.27-4.67Z"/>
+                <path fill="#ffffff" d="M396.47,224.08v-.05c0-2.56,2.11-3.92,5.19-3.92,1.55,0,2.65.21,3.73.52v-.42c0-2.18-1.34-3.31-3.62-3.31-1.43,0-2.56.38-3.69.89l-.54-1.48c1.34-.61,2.65-1.01,4.42-1.01s3.03.45,3.92,1.34c.82.82,1.24,2,1.24,3.55v7.42h-1.74v-1.83c-.85,1.1-2.25,2.09-4.39,2.09-2.25,0-4.53-1.29-4.53-3.78h0ZM405.42,223.14v-1.17c-.89-.26-2.09-.52-3.57-.52-2.28,0-3.55.99-3.55,2.51v.05c0,1.53,1.41,2.42,3.05,2.42,2.23,0,4.06-1.36,4.06-3.29h.01Z"/>
+                <path fill="#ffffff" d="M410.98,215.46h1.81v2.11c.8-1.32,2.07-2.37,4.16-2.37,2.94,0,4.65,1.97,4.65,4.86v7.54h-1.81v-7.09c0-2.25-1.22-3.66-3.36-3.66s-3.64,1.53-3.64,3.8v6.95h-1.81v-12.14Z"/>
+                <path fill="#ffffff" d="M434.18,215.46h1.93l-5.1,12.54c-1.03,2.51-2.21,3.43-4.04,3.43-1.01,0-1.76-.21-2.58-.61l.61-1.43c.59.3,1.13.45,1.9.45,1.08,0,1.76-.56,2.49-2.28l-5.52-12.09h2l4.41,10.12,3.9-10.12h0Z"/>
+            </g>
+            <g>
+                <path fill="#ef7d00" d="M312.16,3.22c-52.77,0-95.56,42.79-95.56,95.56s42.79,95.56,95.56,95.56v-3.19c-51.01,0-92.38-41.37-92.38-92.38S261.15,6.4,312.16,6.4v-3.19h0Z"/>
+                <path fill="#ffffff" d="M101.92,3.22C49.15,3.22,6.35,46.01,6.35,98.78s42.79,95.56,95.56,95.56,95.56-42.79,95.56-95.56S154.69,3.22,101.92,3.22ZM82.59,137.01c-7.81,0-11.25-5.46-13.67-9.31-2.47-4.18-5.08-8.62-7.83-13.4-2-3.49-2.28-5.71-2.28-9.7v-9.92h10.17c4.68-.01,9.27-4.1,9.28-9.01,0-4.61-4.23-8.36-9.81-8.36h-13.82v52.68c0,3.86-3.16,7.03-7.03,7.03h-15.19V60.55h40.04c16.36,0,25.95,11.68,26.2,23.54.22,10.01-6.02,20.16-17.59,23.51l18.53,29.4h-17.01.01ZM156.19,137.01c-7.81,0-11.25-5.46-13.67-9.31-2.47-4.18-5.09-8.62-7.83-13.4-2-3.49-2.28-5.71-2.28-9.7v-9.92h10.17c4.68-.01,9.28-4.1,9.28-9,0-4.61-4.23-8.36-9.81-8.36h-13.82v52.68c0,3.86-3.16,7.03-7.03,7.03h-15.19V60.55h40.04c16.36,0,25.95,11.68,26.2,23.54.22,10.01-6.02,20.15-17.59,23.51l18.53,29.4h-17.01,0Z"/>
+                <path fill="#ec6608" d="M430.5,108.13c0-.5-.14-.91-.43-1.23-.28-.32-.65-.58-1.11-.8-.46-.21-.99-.4-1.6-.56-.6-.16-1.23-.32-1.88-.47-.83-.23-1.63-.48-2.4-.78-.76-.3-1.44-.69-2.02-1.17-.58-.47-1.05-1.08-1.39-1.81-.34-.73-.52-1.62-.52-2.67,0-1.3.23-2.42.7-3.37.47-.95,1.09-1.74,1.88-2.37.79-.62,1.71-1.08,2.76-1.39,1.05-.3,2.15-.45,3.32-.45,1.42,0,2.75.11,4,.34,1.24.24,2.37.53,3.38.9v4.63c-.53-.18-1.08-.34-1.67-.49-.58-.16-1.17-.29-1.77-.4-.61-.11-1.2-.2-1.79-.28-.59-.07-1.15-.11-1.68-.11-.67,0-1.24.07-1.7.2-.46.12-.84.29-1.13.52-.29.21-.49.46-.62.75-.12.28-.19.57-.19.87,0,.53.14.97.42,1.3.28.34.67.61,1.16.81.5.21,1.02.38,1.56.52s1.07.27,1.58.4c.8.19,1.6.42,2.4.7.8.27,1.52.65,2.16,1.14.64.48,1.16,1.11,1.57,1.89.4.78.61,1.77.61,2.96,0,1.31-.25,2.46-.75,3.43-.49.97-1.19,1.79-2.07,2.43-.88.65-1.95,1.13-3.19,1.44-1.24.31-2.6.47-4.09.47s-2.79-.11-3.97-.34c-1.18-.24-2.15-.52-2.92-.88v-4.59c1.24.47,2.4.78,3.46.95,1.06.16,2.04.25,2.95.25.7,0,1.36-.06,1.97-.16.61-.11,1.14-.27,1.57-.49.44-.23.79-.51,1.05-.85.25-.34.38-.76.38-1.24M408.89,104.96c-.54-.13-1.16-.25-1.87-.34-.7-.11-1.42-.16-2.14-.16-1.39,0-2.49.27-3.3.83-.81.55-1.21,1.39-1.21,2.53,0,.52.09.98.28,1.38.18.39.43.72.74.97s.67.44,1.09.57c.42.13.85.2,1.32.2.57,0,1.12-.08,1.63-.23.52-.16.98-.34,1.42-.58.43-.23.82-.49,1.16-.78s.64-.57.88-.84v-3.55h0ZM409.34,112.4h-.1c-.32.34-.7.68-1.15,1.03-.44.35-.96.69-1.53,1s-1.21.56-1.92.75c-.7.2-1.47.29-2.28.29-1.11,0-2.13-.17-3.1-.52-.96-.34-1.78-.83-2.46-1.48-.69-.65-1.23-1.43-1.62-2.36-.39-.92-.59-1.94-.59-3.08,0-1.24.23-2.37.69-3.36.45-.99,1.09-1.83,1.9-2.52.82-.69,1.79-1.21,2.93-1.57,1.14-.36,2.39-.54,3.77-.54,1.01,0,1.93.07,2.78.2.84.13,1.59.28,2.23.46v-.94c0-.54-.09-1.06-.28-1.57-.18-.5-.47-.95-.88-1.34s-.94-.7-1.6-.93-1.46-.34-2.4-.34c-1.15,0-2.3.12-3.46.38-1.15.26-2.4.65-3.74,1.15v-4.44c1.17-.51,2.41-.9,3.72-1.17,1.32-.28,2.69-.42,4.13-.43,1.7,0,3.19.2,4.45.62,1.27.42,2.33.99,3.19,1.71.86.73,1.5,1.59,1.92,2.58.43.99.63,2.07.63,3.24v8.75c0,1.54.02,2.86.05,3.96s.07,2.09.1,2.95h-5.13l-.24-2.47h-.01ZM391.98,114.84c-.64.2-1.4.34-2.29.46-.88.11-1.71.16-2.48.16-1.95,0-3.55-.31-4.78-.94-1.24-.64-2.12-1.54-2.63-2.73-.37-.85-.55-2-.55-3.46v-12.04h-4.35v-4.68h4.35v-6.5h5.68v6.5h6.71v4.68h-6.71v11.3c0,.9.14,1.56.41,1.99.47.74,1.43,1.11,2.85,1.11.66,0,1.31-.05,1.96-.16s1.26-.24,1.83-.39v4.7h0ZM363.03,95.49c-.71,0-1.36.13-1.92.39-.56.26-1.04.62-1.45,1.08s-.74.99-.97,1.6c-.24.61-.4,1.25-.47,1.94h9.14c0-.69-.09-1.33-.28-1.94-.18-.61-.46-1.14-.81-1.6-.36-.46-.81-.82-1.35-1.08-.53-.26-1.16-.39-1.88-.39h0ZM365.31,110.89c1.11,0,2.25-.11,3.46-.34,1.2-.23,2.42-.55,3.64-.97v4.54c-.74.32-1.87.62-3.38.92-1.52.29-3.1.43-4.72.43s-3.21-.21-4.69-.63c-1.48-.43-2.77-1.11-3.87-2.06-1.11-.94-1.98-2.17-2.63-3.67-.65-1.51-.97-3.32-.97-5.47s.3-3.95.92-5.54c.61-1.58,1.42-2.89,2.45-3.93,1.02-1.04,2.19-1.82,3.51-2.34s2.68-.78,4.09-.78,2.82.22,4.07.67c1.24.45,2.31,1.15,3.21,2.11.91.96,1.61,2.19,2.11,3.7.51,1.51.76,3.3.76,5.36-.02.8-.04,1.48-.07,2.04h-15.24c.08,1.07.32,1.99.72,2.75.4.75.93,1.38,1.57,1.84.65.47,1.41.82,2.27,1.03s1.8.33,2.81.33h-.02ZM337.58,115.47c-2.33,0-4.27-.39-5.81-1.19-1.54-.79-2.69-1.86-3.48-3.2-.42-.72-.72-1.51-.93-2.37-.2-.86-.29-1.83-.29-2.88v-14.2h5.68v13.6c0,.79.06,1.46.16,2.03.11.57.29,1.06.51,1.47.38.7.93,1.23,1.63,1.57s1.55.52,2.52.52c1.02,0,1.9-.2,2.63-.57.72-.38,1.27-.97,1.64-1.75.37-.75.56-1.8.56-3.14v-13.72h5.68v14.2c0,1.89-.33,3.48-.98,4.78-.37.73-.84,1.4-1.42,2-.59.6-1.28,1.11-2.06,1.54-.79.42-1.69.74-2.69.98-1,.23-2.11.34-3.34.34h0ZM316.59,94.23l.25-2.61h4.99v34.4h-5.68v-9.66c0-.69,0-1.33.02-1.91.02-.59.02-1.04.04-1.36h-.04c-.35.29-.76.57-1.21.85-.46.28-.96.54-1.5.77-.55.23-1.14.42-1.78.55-.64.14-1.32.2-2.04.2-1.24,0-2.44-.22-3.61-.65-1.18-.44-2.23-1.14-3.14-2.09-.92-.95-1.65-2.18-2.21-3.68-.55-1.51-.83-3.28-.83-5.35s.29-3.87.85-5.47c.57-1.6,1.33-2.93,2.27-3.99.94-1.05,2.03-1.85,3.25-2.38,1.23-.53,2.48-.8,3.78-.8,1.39,0,2.64.29,3.75.88,1.11.58,2.03,1.35,2.75,2.31h.09ZM311.05,110.94c.57,0,1.11-.07,1.63-.22.51-.14.98-.33,1.42-.55.43-.23.82-.47,1.16-.74s.63-.54.88-.82v-10.31c-.6-.72-1.32-1.35-2.16-1.88-.85-.54-1.78-.82-2.78-.83-.57,0-1.18.11-1.81.34-.63.23-1.23.65-1.78,1.24-.56.59-1.02,1.41-1.36,2.46-.34,1.05-.52,2.33-.52,3.82,0,1.17.11,2.21.34,3.14.23.92.57,1.7,1.01,2.35.45.65,1.01,1.15,1.67,1.49s1.43.52,2.32.52h-.02ZM289.58,80.13h5.97v6.17h-5.97v-6.17ZM289.72,91.62h5.69v23.25h-5.69v-23.25ZM285.89,114.84c-.64.2-1.4.34-2.29.46-.88.11-1.71.16-2.48.16-1.95,0-3.55-.31-4.78-.94-1.24-.64-2.12-1.54-2.63-2.73-.37-.85-.55-2-.55-3.46v-12.04h-4.35v-4.68h4.35v-6.5h5.68v6.5h6.71v4.68h-6.71v11.3c0,.9.14,1.56.41,1.99.47.74,1.43,1.11,2.85,1.11.66,0,1.31-.05,1.96-.16s1.26-.24,1.83-.39v4.7h0ZM251.14,109.95h15.78v4.92h-21.66v-32.1h20.8v4.92h-14.92v8.29h12.81v4.92h-12.81v9.04h0Z"/>
+            </g>
         </svg>
-
         <h1 class="text-4xl font-bold text-white tracking-wider">TROQUEL<span class="text-orange-500">app</span></h1>
         <p class="text-gray-500 text-[10px] uppercase tracking-widest mt-1">Buscador de Troqueles RR</p>
     </div>
 
-    <!-- PANEL DE BÚSQUEDA -->
     <div class="w-full max-w-md bg-neutral-800/50 backdrop-blur-sm p-5 rounded-2xl border border-white/5 shadow-xl mb-6">
-        
-        <!-- Fila 1: Medidas -->
         <div class="flex gap-3 mb-4">
             <div class="w-1/2 relative">
                 <label class="block text-[10px] uppercase text-gray-400 mb-1 font-bold tracking-wider ml-1">Ancho (mm)</label>
                 <input type="number" id="inpAncho" class="input-dark w-full p-3 rounded-xl text-center text-xl font-mono" placeholder="0">
-                <span class="absolute right-3 top-9 text-gray-600 text-xs">mm</span>
             </div>
             <div class="w-1/2 relative">
                 <label class="block text-[10px] uppercase text-gray-400 mb-1 font-bold tracking-wider ml-1">Largo (mm)</label>
                 <input type="number" id="inpLargo" class="input-dark w-full p-3 rounded-xl text-center text-xl font-mono" placeholder="0">
-                <span class="absolute right-3 top-9 text-gray-600 text-xs">mm</span>
             </div>
         </div>
-
-        <!-- Fila 2: Formato y Código -->
+        
         <div class="flex gap-3 mb-6">
             <div class="w-1/2">
                 <label class="block text-[10px] uppercase text-gray-400 mb-1 font-bold tracking-wider ml-1">Formato</label>
-                <div class="relative">
-                    <select id="inpFormato" class="input-dark w-full p-3 rounded-xl appearance-none text-sm">
-                        <option value="">Todos</option>
-                        <option value="CIRCULAR">CIRCULAR</option>
-                        <option value="CORTE RECTO">CORTE RECTO</option>
-                        <option value="DIGITAL">DIGITAL</option>
-                        <option value="DIGITAL (CIRC)">DIGITAL (CIRC)</option>
-                        <option value="DIGITAL (FIG)">DIGITAL (FIG)</option>
-                        <option value="DIGITAL (PREPICADO)">DIGITAL (PREPICADO)</option>
-                        <option value="DIGITAL (RECT)">DIGITAL (RECT)</option>
-                        <option value="DIGITAL (TAG-PAI)">DIGITAL (TAG-PAI)</option>
-                        <option value="FIGURAS">FIGURAS</option>
-                        <option value="JUEGOS">JUEGOS</option>
-                        <option value="PREPICADO">PREPICADO</option>
-                        <option value="RECTANGULAR">RECTANGULAR</option>
-                        <option value="TAG-PAI">TAG-PAI</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </div>
-                </div>
+                <select id="inpFormato" class="input-dark w-full p-3 rounded-xl text-sm">
+                    <option value="">Todos</option>
+                    <option value="CIRCULAR">CIRCULAR</option>
+                    <option value="CORTE RECTO">CORTE RECTO</option>
+                    <option value="RECTANGULAR">RECTANGULAR</option>
+                </select>
             </div>
             <div class="w-1/2">
                 <label class="block text-[10px] uppercase text-gray-400 mb-1 font-bold tracking-wider ml-1">Código Troquel</label>
                 <input type="text" id="inpCodigo" class="input-dark w-full p-3 rounded-xl text-center text-sm uppercase" placeholder="Ej: M0297">
             </div>
         </div>
-        
-        <!-- Tolerancia -->
-         <div class="flex items-center justify-center gap-2 mb-4">
+
+        <div class="flex items-center justify-center gap-2 mb-4">
             <label class="text-[10px] text-gray-400 uppercase font-bold">Tolerancia ± (mm):</label>
             <input type="number" id="inpTolerancia" value="5" class="input-dark w-16 p-1 rounded text-center text-sm font-mono focus:border-orange-500 border border-neutral-600">
         </div>
 
-        <!-- Botón Buscar -->
-        <button id="btnBuscar" onclick="buscarTroqueles()" class="btn-naranja w-full p-4 rounded-xl shadow-lg shadow-orange-900/20 flex justify-center items-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed">
-            <i class="fas fa-search group-hover:scale-110 transition-transform"></i> 
-            <span id="btnTexto">BUSCAR</span>
+        <button id="btnBuscar" onclick="buscarTroqueles()" class="btn-naranja w-full p-4 rounded-xl shadow-lg flex justify-center items-center gap-2">
+            <i class="fas fa-search"></i> <span>BUSCAR</span>
         </button>
-        
     </div>
 
-    <!-- ESTADO DE CARGA -->
     <div id="loadingStatus" class="text-orange-500 text-sm mb-4 animate-pulse text-center">
-        <i class="fas fa-sync fa-spin mr-2"></i> Conectando con Google Sheets...
+        <i class="fas fa-sync fa-spin mr-2"></i> Cargando base de datos...
     </div>
 
-    <!-- LISTA DE RESULTADOS -->
     <div class="w-full max-w-md">
-        <h3 class="text-gray-400 text-xs font-bold uppercase mb-3 ml-1 flex justify-between items-end">
+        <h3 class="text-gray-400 text-xs font-bold uppercase mb-3 flex justify-between">
             <span>Resultados</span>
             <span id="contadorResultados" class="text-orange-500"></span>
         </h3>
-        
-        <!-- Contenedor Resultados Principales -->
-        <div id="resultadosContenedor" class="space-y-3 pb-6">
-            <!-- Aquí se inyectan las tarjetas con JS -->
-            <div class="text-center py-10 text-gray-600">
-                <i class="fas fa-search fa-3x mb-3 opacity-20"></i>
-                <p>Base de datos lista.</p>
-            </div>
-        </div>
-
-        <!-- Contenedor Resultados Invertidos (Nuevo) -->
-        <div id="resultadosInvertidosContenedor" class="hidden border-t-2 border-dashed border-gray-700 pt-6 pb-24 mt-6">
-            <h3 class="text-orange-400 text-xs font-bold uppercase mb-3 ml-1 flex items-center gap-2">
-                <i class="fas fa-retweet"></i> Sugerencias Invertidas (Rotadas)
+        <div id="resultadosContenedor" class="space-y-3 pb-6"></div>
+        <div id="resultadosInvertidosContenedor" class="hidden border-t-2 border-dashed border-gray-700 pt-6 mt-6">
+            <h3 class="text-orange-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
+                <i class="fas fa-retweet"></i> Sugerencias Rotadas
             </h3>
-            <div id="listaInvertidos" class="space-y-3">
-                <!-- Se llenará con JS -->
-            </div>
+            <div id="listaInvertidos" class="space-y-3"></div>
         </div>
     </div>
 
-    <!-- MODAL DE IMAGEN -->
-    <div id="modalImagen" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="cerrarModal()"></div>
-        
-        <!-- Contenido Modal -->
-        <div class="modal-content relative w-full h-full flex flex-col items-center justify-center p-4 pointer-events-none">
-            <div class="w-full max-w-sm bg-neutral-800 rounded-2xl overflow-hidden shadow-2xl pointer-events-auto border border-white/10">
-                <div class="p-4 bg-neutral-900 flex justify-between items-center border-b border-white/5">
+    <div id="modalImagen" class="fixed inset-0 z-50 hidden" onclick="cerrarModal()">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm"></div>
+        <div class="modal-content relative w-full h-full flex items-center justify-center p-4">
+            <div class="w-full max-w-sm bg-neutral-800 rounded-2xl overflow-hidden shadow-2xl border border-white/10" onclick="event.stopPropagation()">
+                <div class="p-4 bg-neutral-900 flex justify-between items-center">
                     <h3 id="modalTitulo" class="text-white font-bold text-lg">...</h3>
-                    <button onclick="cerrarModal()" class="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <button onclick="cerrarModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
                 </div>
-                
-                <div class="aspect-square bg-black flex items-center justify-center relative overflow-hidden group">
-                    <!-- Imagen real -->
-                    <img id="modalImg" src="" class="w-full h-full object-contain bg-neutral-900" onerror="this.style.display='none'; document.getElementById('errorImg').style.display='block';">
-                    
-                    <!-- Fallback si falla la imagen -->
-                    <div id="errorImg" class="text-center hidden absolute inset-0 flex flex-col items-center justify-center bg-neutral-800">
+                <div class="aspect-square bg-black flex items-center justify-center relative">
+                    <img id="modalImg" class="w-full h-full object-contain" style="display:none;">
+                    <div id="errorImg" class="text-center" style="display:none;">
                         <i class="fas fa-image-slash text-6xl text-gray-700 mb-4"></i>
                         <p class="text-gray-500 text-sm">Imagen no disponible</p>
                     </div>
                 </div>
-
-                <div class="p-4 bg-neutral-900 border-t border-white/5 flex gap-2">
-                    <button onclick="copiarCodigo()" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg text-sm font-medium transition-colors">
-                        <i class="far fa-copy mr-2"></i> Copiar Código
-                    </button>
-                    <button onclick="cerrarModal()" class="flex-1 btn-naranja py-3 rounded-lg text-sm font-medium">
-                        Cerrar
-                    </button>
+                <div class="p-4 bg-neutral-900 flex gap-2">
+                    <button onclick="copiarCodigo()" class="flex-1 bg-neutral-800 text-white py-3 rounded-lg text-sm">Copiar Código</button>
+                    <button onclick="cerrarModal()" class="flex-1 btn-naranja py-3 rounded-lg text-sm">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- LÓGICA DE LA APP -->
     <script>
-        // ==========================================
-        // CONFIGURACIÓN
-        // ==========================================
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/14WVjXaJTvipg3p-usLsKsrAPLM2uOTx0yuAhNabl5eA/edit?usp=drive_link";
-        
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT6EiWfmeqj01h807bJiut1jZWa3Ea_KxMcUBPxGFEiHsHNQWrlFyzs7cpWhe32n37yfxnoxmWitEni/pub?gid=0&single=true&output=csv";
         let baseDatos = [];
-        let datosCargados = false;
 
-        // Referencias al DOM
-        const contenedor = document.getElementById('resultadosContenedor');
-        const contenedorInvertidos = document.getElementById('resultadosInvertidosContenedor');
-        const listaInvertidos = document.getElementById('listaInvertidos');
-        
-        const contador = document.getElementById('contadorResultados');
-        const loadingStatus = document.getElementById('loadingStatus');
-        const btnBuscar = document.getElementById('btnBuscar');
-
-        // 1. CARGAR DATOS AL INICIAR
-        window.onload = function() {
-            btnBuscar.disabled = true;
-            
-            fetch(SHEET_URL)
-                .then(response => {
-                    if (!response.ok) throw new Error("Error de red al acceder al CSV");
-                    return response.text();
-                })
-                .then(csvText => {
-                    Papa.parse(csvText, {
-                        header: true,
-                        dynamicTyping: true,
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            baseDatos = results.data;
-                            datosCargados = true;
-                            
-                            // Ocultar carga y habilitar
-                            loadingStatus.classList.add('hidden');
-                            btnBuscar.disabled = false;
-                            console.log(`Datos cargados: ${baseDatos.length} registros.`);
-                        }
-                    });
-                })
-                .catch(err => {
-                    console.error("Error cargando datos:", err);
-                    loadingStatus.innerHTML = `
-                        <div class="bg-red-900/50 p-3 rounded-lg border border-red-500/30">
-                            <p class="text-red-400 font-bold mb-1"><i class="fas fa-exclamation-triangle"></i> Error de Conexión</p>
-                            <p class="text-gray-400 text-xs">
-                                Si estás probando esto en tu PC (archivo local), usa "Live Server" o sube a Netlify.
-                            </p>
-                        </div>
-                    `;
+        window.onload = () => {
+            fetch(SHEET_URL).then(r => r.text()).then(csv => {
+                Papa.parse(csv, {
+                    header: true, dynamicTyping: true, skipEmptyLines: true,
+                    complete: (results) => {
+                        baseDatos = results.data;
+                        document.getElementById('loadingStatus').classList.add('hidden');
+                    }
                 });
+            });
         };
 
-        // 2. BUSCAR
         function buscarTroqueles() {
-            if (!datosCargados) return;
+            const ancho = parseFloat(document.getElementById('inpAncho').value) || null;
+            const largo = parseFloat(document.getElementById('inpLargo').value) || null;
+            const codigo = document.getElementById('inpCodigo').value.trim().toUpperCase();
+            const formato = document.getElementById('inpFormato').value;
+            const tol = parseFloat(document.getElementById('inpTolerancia').value) || 5;
 
-            // Obtener valores
-            const anchoInput = document.getElementById('inpAncho').value;
-            const largoInput = document.getElementById('inpLargo').value;
-            const formatoInput = document.getElementById('inpFormato').value;
-            const codigoInput = document.getElementById('inpCodigo').value.trim().toUpperCase();
-            
-            // Tolerancia Dinámica
-            let tolerancia = parseFloat(document.getElementById('inpTolerancia').value);
-            if (isNaN(tolerancia)) tolerancia = 5; // Valor por defecto si lo borran
-
-            const ancho = anchoInput ? parseFloat(anchoInput) : null;
-            const largo = largoInput ? parseFloat(largoInput) : null;
-
-            // --- FILTRO PRINCIPAL (A x L) ---
-            const resultados = baseDatos.filter(item => {
-                if (!item.Codigo) return false;
-
-                let pasaCodigo = true;
-                let pasaFormato = true;
-                let pasaAncho = true;
-                let pasaLargo = true;
-
-                // Filtro Código (parcial)
-                if (codigoInput) {
-                    pasaCodigo = String(item.Codigo).toUpperCase().includes(codigoInput);
-                }
-
-                // Filtro Formato (Exacto)
-                if (formatoInput) {
-                    pasaFormato = String(item.Formato).toUpperCase() === formatoInput.toUpperCase();
-                }
-
-                // Filtro Ancho (+/- Tolerancia)
-                if (ancho !== null) {
-                    let valAncho = parseFloat(item.Ancho); 
-                    if (isNaN(valAncho)) valAncho = 0;
-                    pasaAncho = (valAncho >= ancho - tolerancia && valAncho <= ancho + tolerancia);
-                }
-
-                // Filtro Largo (+/- Tolerancia)
-                if (largo !== null) {
-                    let valLargo = parseFloat(item.Largo);
-                    if (isNaN(valLargo)) valLargo = 0;
-                    pasaLargo = (valLargo >= largo - tolerancia && valLargo <= largo + tolerancia);
-                }
-
-                return pasaCodigo && pasaFormato && pasaAncho && pasaLargo;
+            const res = baseDatos.filter(i => {
+                if (!i.Codigo) return false;
+                return (codigo ? String(i.Codigo).toUpperCase().includes(codigo) : true) &&
+                       (formato ? String(i.Formato).toUpperCase() === formato.toUpperCase() : true) &&
+                       (ancho ? (i.Ancho >= ancho - tol && i.Ancho <= ancho + tol) : true) &&
+                       (largo ? (i.Largo >= largo - tol && i.Largo <= largo + tol) : true);
             });
 
-            // --- FILTRO INVERTIDO (L x A) ---
-            // Solo se ejecuta si hay medidas definidas (si no hay medidas, la inversión no tiene sentido)
-            let resultadosInvertidos = [];
-            if (ancho !== null && largo !== null) {
-                resultadosInvertidos = baseDatos.filter(item => {
-                    if (!item.Codigo) return false;
-                    // Evitar duplicados: Si ya salió en la lista principal, no lo muestres aquí
-                    if (resultados.includes(item)) return false;
-
-                    let pasaCodigo = true;
-                    let pasaFormato = true;
-                    
-                    // Filtros básicos igual que arriba
-                    if (codigoInput) pasaCodigo = String(item.Codigo).toUpperCase().includes(codigoInput);
-                    if (formatoInput) pasaFormato = String(item.Formato).toUpperCase() === formatoInput.toUpperCase();
-
-                    // AQUÍ ESTÁ LA MAGIA: Invertimos la lógica
-                    // Buscamos que el ANCHO del item coincida con el LARGO buscado
-                    let valAncho = parseFloat(item.Ancho) || 0;
-                    let pasaAncho = (valAncho >= largo - tolerancia && valAncho <= largo + tolerancia);
-
-                    // Buscamos que el LARGO del item coincida con el ANCHO buscado
-                    let valLargo = parseFloat(item.Largo) || 0;
-                    let pasaLargo = (valLargo >= ancho - tolerancia && valLargo <= ancho + tolerancia);
-
-                    return pasaCodigo && pasaFormato && pasaAncho && pasaLargo;
-                });
-            }
-
-            // Mostrar
-            renderizarResultados(resultados);
-            renderizarInvertidos(resultadosInvertidos);
+            renderizar(res);
         }
 
-        // 3. RENDERIZAR
-        function renderizarResultados(lista) {
-            contenedor.innerHTML = "";
-            contador.innerText = `${lista.length} encontrados`;
-
-            if (lista.length === 0) {
-                contenedor.innerHTML = `
-                    <div class="text-center py-10 opacity-50">
-                        <i class="far fa-frown fa-3x mb-3"></i>
-                        <p>No se encontraron resultados directos</p>
-                    </div>
-                `;
-                // No retornamos aquí para permitir que se dibujen los invertidos si existen
-            }
-
-            lista.forEach(item => crearTarjeta(item, contenedor));
+        function renderizar(lista) {
+            const cont = document.getElementById('resultadosContenedor');
+            cont.innerHTML = "";
+            document.getElementById('contadorResultados').innerText = lista.length + " encontrados";
+            lista.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "bg-[#1e1e1e] rounded-xl p-4 flex justify-between items-center border-l-4 border-orange-500";
+                div.innerHTML = `<div><div class="font-bold text-white">${item.Codigo}</div><div class="text-sm text-gray-400">${item.Ancho}x${item.Largo}mm</div></div>
+                                 <button onclick="verImagen('${item.Codigo}')" class="w-10 h-10 rounded-full bg-neutral-800 text-gray-400"><i class="far fa-image"></i></button>`;
+                cont.appendChild(div);
+            });
         }
 
-        function renderizarInvertidos(lista) {
-            listaInvertidos.innerHTML = "";
-            
-            if (lista.length > 0) {
-                contenedorInvertidos.classList.remove('hidden');
-                lista.forEach(item => crearTarjeta(item, listaInvertidos, true));
-            } else {
-                contenedorInvertidos.classList.add('hidden');
-            }
-        }
-
-        function crearTarjeta(item, destino, esInvertido = false) {
-            const codigo = item.Codigo || "???";
-            const formato = item.Formato || "";
-            const ancho = item.Ancho || 0;
-            const largo = item.Largo || 0;
-            const carreras = item.Carreras || "-";
-
-            const div = document.createElement('div');
-            // Si es invertido, le damos un borde naranja sutil para diferenciar
-            const bordeExtra = esInvertido ? "border-l-4 border-l-orange-300 opacity-90" : "border-l-4 border-l-orange-500";
-            
-            div.className = `bg-[#1e1e1e] rounded-xl p-4 flex justify-between items-center shadow-lg animate-[fadeIn_0.3s_ease-out] ${bordeExtra}`;
-            
-            div.innerHTML = `
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-lg font-bold text-white tracking-wide">${codigo}</span>
-                        <span class="text-[10px] bg-neutral-700 text-gray-300 px-2 py-0.5 rounded border border-white/10">${formato}</span>
-                        ${esInvertido ? '<span class="text-[9px] text-orange-300 bg-orange-900/30 px-1 rounded"><i class="fas fa-sync-alt"></i> ROTADO</span>' : ''}
-                    </div>
-                    <div class="text-sm text-gray-400">
-                        Medidas: <span class="text-orange-400 font-bold ml-1 text-base">${ancho} x ${largo}</span> <span class="text-xs">mm</span>
-                    </div>
-                    <div class="text-xs text-gray-600 mt-1">
-                        <i class="fas fa-layer-group mr-1"></i> Carreras: ${carreras}
-                    </div>
-                </div>
-                
-                <button onclick="verImagen('${codigo}')" class="w-12 h-12 rounded-full bg-neutral-800 hover:bg-orange-500/20 text-gray-400 hover:text-orange-500 border border-white/10 hover:border-orange-500/50 flex items-center justify-center transition-all">
-                    <i class="far fa-image text-lg"></i>
-                </button>
-            `;
-            destino.appendChild(div);
-        }
-
-        // --- Funciones del Modal ---
         function verImagen(codigo) {
-            const modal = document.getElementById('modalImagen');
-            const imgElement = document.getElementById('modalImg');
-            const errorElement = document.getElementById('errorImg');
-
+            const img = document.getElementById('modalImg');
+            const err = document.getElementById('errorImg');
             document.getElementById('modalTitulo').innerText = codigo;
-            imgElement.style.display = 'block';
-            errorElement.style.display = 'none';
-
-            // RUTA DE LA IMAGEN
-            imgElement.src = `img/${codigo}.jpg`; 
+            img.style.display = 'none'; err.style.display = 'none';
             
-            modal.classList.remove('hidden');
+            // Intenta cargar .jpg minúscula primero
+            img.src = `img/${codigo}.jpg`;
+            img.onload = () => img.style.display = 'block';
+            img.onerror = () => {
+                // Si falla, intenta .JPG mayúscula
+                if (!img.src.includes('.JPG')) {
+                    img.src = `img/${codigo}.JPG`;
+                } else {
+                    err.style.display = 'block';
+                }
+            };
+            document.getElementById('modalImagen').classList.remove('hidden');
         }
 
-        function cerrarModal() {
-            document.getElementById('modalImagen').classList.add('hidden');
-        }
-
+        function cerrarModal() { document.getElementById('modalImagen').classList.add('hidden'); }
         function copiarCodigo() {
-            const codigo = document.getElementById('modalTitulo').innerText;
-            navigator.clipboard.writeText(codigo).then(() => {
-                const btn = event.currentTarget;
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check mr-2"></i> Copiado';
-                btn.classList.add('text-green-400');
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.classList.remove('text-green-400');
-                }, 1500);
-            });
+            navigator.clipboard.writeText(document.getElementById('modalTitulo').innerText);
+            alert("Copiado");
         }
     </script>
 </body>
