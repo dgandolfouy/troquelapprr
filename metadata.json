@@ -1,0 +1,6 @@
+{
+  "name": "TROQUELapp - Buscador RR",
+  "description": "Aplicación avanzada para la búsqueda y visualización de troqueles de corte, tolerancias de medidas, sugerencias rotadas y estadísticas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
