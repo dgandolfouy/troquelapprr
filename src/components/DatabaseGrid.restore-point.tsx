@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Search, ChevronDown, ChevronUp, Image, Cog, Printer } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, Image, Cog } from "lucide-react";
 import { Troquel } from "../types";
 import { FormatIndicator } from "../utils/formatHelper";
 
@@ -13,8 +13,6 @@ interface DatabaseGridProps {
   onSelectTroquel: (troquel: Troquel) => void;
   onViewDrawing: (codigo: string) => void;
   customNotes?: Record<string, string>;
-  onAddPliego?: (troquel: Troquel) => void;
-  onAddMultiplePliegos?: (troqueles: Troquel[]) => void;
 }
 
 type SortField = "Codigo" | "Formato" | "Ancho" | "Largo" | "Carreras" | "Engranaje";
@@ -25,8 +23,6 @@ export const DatabaseGrid: React.FC<DatabaseGridProps> = ({
   onSelectTroquel,
   onViewDrawing,
   customNotes = {},
-  onAddPliego,
-  onAddMultiplePliegos,
 }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [selectedFormat, setSelectedFormat] = React.useState("");
@@ -152,27 +148,6 @@ export const DatabaseGrid: React.FC<DatabaseGridProps> = ({
         />
       </div>
 
-      {filteredData.length > 0 && (onAddPliego || onAddMultiplePliegos) && (
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center bg-neutral-950/40 p-3 rounded-xl border border-white/5 gap-2 select-none">
-          <span className="text-[10px] text-gray-450 font-bold ml-1">
-            Se encontraron <span className="text-orange-450 font-black">{filteredData.length}</span> troqueles coincidentes.
-          </span>
-          <button
-            onClick={() => {
-              if (onAddMultiplePliegos) {
-                onAddMultiplePliegos(filteredData);
-              } else if (onAddPliego) {
-                filteredData.forEach((t) => onAddPliego!(t));
-              }
-            }}
-            className="px-4 py-1.5 bg-orange-500 hover:bg-transparent border border-orange-500 text-white hover:text-orange-400 font-extrabold rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            Añadir todos a Imprenta ({filteredData.length})
-          </button>
-        </div>
-      )}
-
       {/* Grid List */}
       <div className="overflow-x-auto rounded-xl border border-white/5">
         <table className="w-full text-left border-collapse min-w-[500px]">
@@ -266,16 +241,6 @@ export const DatabaseGrid: React.FC<DatabaseGridProps> = ({
                       >
                         <Image className="w-3.5 h-3.5" />
                       </button>
-
-                      {onAddPliego && (
-                        <button
-                          onClick={() => onAddPliego(item)}
-                          className="p-1.5 rounded-lg border bg-neutral-900 border-white/5 text-gray-400 hover:text-orange-500 hover:border-orange-500/30 transition-colors"
-                          title="Añadir a Pliego de Etiquetas"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                        </button>
-                      )}
                     </td>
                   </tr>
                 );

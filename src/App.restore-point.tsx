@@ -21,14 +21,12 @@ import {
   RefreshCw,
   Sliders,
   Cog,
-  Printer,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Troquel, SearchingParams } from "./types";
 import { TroquelVisualizer } from "./components/TroquelVisualizer";
 import { DatabaseGrid } from "./components/DatabaseGrid";
 import { FormatIndicator } from "./utils/formatHelper";
-import { LabelGenerator } from "./components/LabelGenerator";
 
 const SHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT6EiWfmeqj01h807bJiut1jZWa3Ea_KxMcUBPxGFEiHsHNQWrlFyzs7cpWhe32n37yfxnoxmWitEni/pub?gid=0&single=true&output=csv";
@@ -60,188 +58,7 @@ export default function App() {
   const [favorites, setFavorites] = useState<Troquel[]>([]);
 
   // Navigation Panel Tab State (Search, Database explorer)
-  const [activeTab, setActiveTab] = useState<"search" | "explorer" | "labels">("search");
-
-  // Quick toast state
-  const [successToast, setSuccessToast] = useState<string | null>(null);
-
-  // Add selected troquel to labels printing queue (stored in localStorage)
-  const handleAddTroquelToPliego = (troquel: Troquel) => {
-    try {
-      const stored = localStorage.getItem("pliego_labels_queue");
-      const currentQueue = stored ? JSON.parse(stored) : [];
-      
-      const code = String(troquel.Codigo).toUpperCase();
-      const format = String(troquel.Formato || "").toUpperCase();
-      const note = (customNotes[String(troquel.Codigo)] || "").toUpperCase();
-
-      // 1. Tipo Troquel
-      let tipoTroquel: "DIGITAL" | "ETIRAMA" | "FLEXO" | "FINISHER" = "FLEXO";
-      if (code.startsWith("D") || format.includes("DIGITAL")) {
-        tipoTroquel = "DIGITAL";
-      } else if (code.startsWith("E") || format.includes("ETIRAMA")) {
-        tipoTroquel = "ETIRAMA";
-      } else if (code.startsWith("FI") || code.startsWith("F") || note.includes("FINISHER") || format.includes("FINISHER")) {
-        tipoTroquel = "FINISHER";
-      }
-
-      // 2. Shape Logo
-      let formaLogo: "R" | "C" | "F" | "PAI" | "CR" | "P" = "R";
-      if (format.includes("CIRCULAR") || format.includes("REDONDO") || format.includes("CIRC")) {
-        formaLogo = "C";
-      } else if (format.includes("FLECHA") || format.includes("OPP") || format.includes("DISEÑO") || format.includes("ESPECIAL") || format.includes("FIGURA") || format.includes("FIG")) {
-        formaLogo = "F";
-      } else if (format.includes("TAG") || format.includes("PAI")) {
-        formaLogo = "PAI";
-      } else if (format.includes("PREPICADO") || format.includes("PREP") || format.includes("TROQUELADO PREP")) {
-        formaLogo = "P";
-      } else if (format.includes("CORTE") || format.includes("RECTO")) {
-        formaLogo = "CR";
-      }
-
-      // 3. Material / Client
-      let material = tipoTroquel === "DIGITAL" ? "COUCHÉ" : "BOPP";
-      let cliente = "RR";
-
-      if (note) {
-        if (note.includes("COUCHÉ") || note.includes("COUCHE")) {
-          material = "COUCHÉ";
-        } else if (note.includes("BOPP")) {
-          material = "BOPP";
-        } else if (note.includes("PAI")) {
-          material = "PAI";
-        }
-
-        const parts = note.split(/[-–,]/).map((s) => s.trim());
-        if (parts.length > 0) {
-          const filteredParts = parts.filter(
-            (p) =>
-              !p.includes("COUCHÉ") &&
-              !p.includes("COUCHE") &&
-              !p.includes("BOPP") &&
-              !p.includes("CORTES") &&
-              !p.includes("SEGURIDAD") &&
-              !p.includes("ROTADO")
-          );
-          if (filteredParts.length > 0) {
-            cliente = filteredParts[0];
-          }
-        }
-      }
-
-      const newItem = {
-        id: "label-" + Date.now() + "-" + Math.random().toString(36).substr(2, 4),
-        codigo: String(troquel.Codigo),
-        formato: String(troquel.Formato || "RECTANGULAR").toUpperCase(),
-        ancho: parseFloat(String(troquel.Ancho)) || 0,
-        largo: parseFloat(String(troquel.Largo)) || 0,
-        carreras: troquel.Carreras ? `${troquel.Carreras}C` : "2C",
-        engranaje: troquel.Engranaje || "",
-        tipoTroquel,
-        formaLogo,
-        material,
-        cliente,
-      };
-
-      const updated = [...currentQueue, newItem];
-      localStorage.setItem("pliego_labels_queue", JSON.stringify(updated));
-      
-      // Trigger success toast
-      setSuccessToast(`¡Se agregó ${troquel.Codigo} al pliego!`);
-      setTimeout(() => setSuccessToast(null), 2500);
-    } catch (e) {
-      console.error("Error adding to pliego queue from search page", e);
-    }
-  };
-
-  const handleAddMultipleTroquelesToPliego = (troqueles: Troquel[]) => {
-    try {
-      const stored = localStorage.getItem("pliego_labels_queue");
-      const currentQueue = stored ? JSON.parse(stored) : [];
-      
-      const newItems = troqueles.map((troquel, idx) => {
-        const code = String(troquel.Codigo).toUpperCase();
-        const format = String(troquel.Formato || "").toUpperCase();
-        const note = (customNotes[String(troquel.Codigo)] || "").toUpperCase();
-
-        // 1. Tipo Troquel
-        let tipoTroquel: "DIGITAL" | "ETIRAMA" | "FLEXO" | "FINISHER" = "FLEXO";
-        if (code.startsWith("D") || format.includes("DIGITAL")) {
-          tipoTroquel = "DIGITAL";
-        } else if (code.startsWith("E") || format.includes("ETIRAMA")) {
-          tipoTroquel = "ETIRAMA";
-        } else if (code.startsWith("FI") || code.startsWith("F") || note.includes("FINISHER") || format.includes("FINISHER")) {
-          tipoTroquel = "FINISHER";
-        }
-
-        // 2. Shape Logo / Badges based on format or note
-        let formaLogo: "R" | "C" | "F" | "PAI" | "CR" | "P" = "R";
-        if (format.includes("CIRCULAR") || format.includes("REDONDO") || format.includes("CIRC")) {
-          formaLogo = "C";
-        } else if (format.includes("FLECHA") || format.includes("OPP") || format.includes("DISEÑO") || format.includes("ESPECIAL") || format.includes("FIGURA") || format.includes("FIG")) {
-          formaLogo = "F";
-        } else if (format.includes("TAG") || format.includes("PAI")) {
-          formaLogo = "PAI";
-        } else if (format.includes("PREPICADO") || format.includes("PREP") || format.includes("TROQUELADO PREP")) {
-          formaLogo = "P";
-        } else if (format.includes("CORTE") || format.includes("RECTO")) {
-          formaLogo = "CR";
-        }
-
-        // 3. Material / Client
-        let material = tipoTroquel === "DIGITAL" ? "COUCHÉ" : "BOPP";
-        let cliente = "RR";
-
-        if (note) {
-          if (note.includes("COUCHÉ") || note.includes("COUCHE")) {
-            material = "COUCHÉ";
-          } else if (note.includes("BOPP")) {
-            material = "BOPP";
-          } else if (note.includes("PAI")) {
-            material = "PAI";
-          }
-
-          const parts = note.split(/[-–,]/).map((s) => s.trim());
-          if (parts.length > 0) {
-            const filteredParts = parts.filter(
-              (p) =>
-                !p.includes("COUCHÉ") &&
-                !p.includes("COUCHE") &&
-                !p.includes("BOPP") &&
-                !p.includes("CORTES") &&
-                !p.includes("SEGURIDAD") &&
-                !p.includes("ROTADO")
-            );
-            if (filteredParts.length > 0) {
-              cliente = filteredParts[0];
-            }
-          }
-        }
-
-        return {
-          id: "label-" + Date.now() + "-" + idx + "-" + Math.random().toString(36).substr(2, 4),
-          codigo: String(troquel.Codigo),
-          formato: String(troquel.Formato || "RECTANGULAR").toUpperCase(),
-          ancho: parseFloat(String(troquel.Ancho)) || 0,
-          largo: parseFloat(String(troquel.Largo)) || 0,
-          carreras: troquel.Carreras ? `${troquel.Carreras}C` : "2C",
-          engranaje: troquel.Engranaje || "",
-          tipoTroquel,
-          formaLogo,
-          material,
-          cliente,
-        };
-      });
-
-      const updated = [...currentQueue, ...newItems];
-      localStorage.setItem("pliego_labels_queue", JSON.stringify(updated));
-      
-      setSuccessToast(`¡Se agregaron ${troqueles.length} troqueles al pliego!`);
-      setTimeout(() => setSuccessToast(null), 2500);
-    } catch (e) {
-      console.error("Error adding multiple to pliego queue from explorer", e);
-    }
-  };
+  const [activeTab, setActiveTab] = useState<"search" | "explorer">("search");
 
   // Modal State
   const [activeDrawingCode, setActiveDrawingCode] = useState<string | null>(null);
@@ -551,7 +368,7 @@ export default function App() {
         <div className="hover:scale-105 transition-transform duration-300 select-none">
           <svg className="h-[100px] sm:h-[120px] w-auto mb-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 445.41 237.71">
             <g>
-              <path fill="#ffffff" d="M201.77,211.05h1.74l7.49,16.56h-2l-1.93-4.34h-8.95l-1.95,4.34h-1.9l7.49-16.56h0Z M206.35,221.59l-3.73-8.38l-3.76,8.38h7.49,0Z" />
+              <path fill="#ffffff" d="M201.77,211.05h1.74l7.49,16.56h-2l-1.93-4.34h-8.95l-1.95,4.34h-1.9j7.49-16.56h0Z M206.35,221.59l-3.73-8.38l-3.76,8.38h7.49,0Z" />
               <path fill="#ffffff" d="M221.28,211.16h7c1.88,0,3.36.54,4.3,1.46.68.71,1.06,1.57,1.06,2.63v.05c0,2.14-1.31,3.24-2.61,3.8,1.95.59,3.52,1.71,3.52,3.97v.05c0,2.82-2.37,4.49-5.96,4.49h-7v-16.44h0Z M231.76,215.51c0-1.62-1.29-2.68-3.64-2.68h-5v5.66h4.86c2.23,0,3.78-1.01,3.78-2.94v-.05h0Z M228.3,220.14h-5.19v5.8h5.52c2.49,0,4.04-1.1,4.04-2.94v-.05c0-1.79-1.5-2.82-4.37-2.82h0Z" />
               <path fill="#ffffff" d="M237.18,221.57v-.05c0-3.5,2.46-6.32,5.82-6.32,3.59,0,5.66,2.87,5.66,6.41,0,.24,0,.38-.02.59h-9.63c.26,2.63,2.11,4.11,4.27,4.11,1.67,0,2.84-.68,3.83-1.71l1.13,1.01c-1.22,1.36-2.7,2.28-5,2.28-3.33,0-6.06-2.56-6.06-6.32h0Z M246.83,220.86c-.19-2.21-1.46-4.13-3.88-4.13-2.11,0-3.71,1.76-3.95,4.13h7.83Z" />
               <path fill="#ffffff" d="M251.08,221.59v-.05c0-3.43,2.68-6.34,6.34-6.34s6.32,2.87,6.32,6.29v.05c0,3.43-2.7,6.34-6.36,6.34s-6.29-2.87-6.29-6.29h-.01Z M261.88,221.59v-.05c0-2.61-1.95-4.74-4.51-4.74s-4.44,2.14-4.44,4.7v.05c0,2.61,1.93,4.72,4.49,4.72s4.46-2.11,4.46-4.67h0Z" />
@@ -584,10 +401,10 @@ export default function App() {
         </p>
 
         {/* TABS SELECTOR */}
-        <div className="flex bg-neutral-900/80 border border-white/5 rounded-xl p-1 mt-6 w-full max-w-sm sm:max-w-md select-none">
+        <div className="flex bg-neutral-900/80 border border-white/5 rounded-xl p-1 mt-6 w-full max-w-xs select-none">
           <button
             onClick={() => setActiveTab("search")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg transition-all duration-250 cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold rounded-lg transition-all duration-250 ${
               activeTab === "search"
                 ? "bg-orange-500 text-white shadow-lg shadow-orange-950/20"
                 : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -598,7 +415,7 @@ export default function App() {
           </button>
           <button
             onClick={() => setActiveTab("explorer")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg transition-all duration-250 cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold rounded-lg transition-all duration-250 ${
               activeTab === "explorer"
                 ? "bg-orange-500 text-white shadow-lg shadow-orange-950/20"
                 : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -607,22 +424,11 @@ export default function App() {
             <Database className="w-3.5 h-3.5" />
             Ver Todo
           </button>
-          <button
-            onClick={() => setActiveTab("labels")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg transition-all duration-250 cursor-pointer ${
-              activeTab === "labels"
-                ? "bg-orange-500 text-white shadow-lg shadow-orange-950/20"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            Imprenta
-          </button>
         </div>
       </header>
 
       {/* CORE WRAPPER */}
-      <main className={`flex-1 w-full mx-auto px-4 pb-20 z-10 transition-all duration-300 ${activeTab === "labels" ? "max-w-7xl" : "max-w-3xl"}`}>
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 pb-20 z-10">
         {/* CONNECTION LOADING & ERROR STATUSES */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -697,9 +503,9 @@ export default function App() {
                         </label>
                         <div className="relative">
                           <select
-                            value={params.formato}
-                            onChange={(e) => handleParamChange("formato", e.target.value)}
-                            className="bg-neutral-950 border border-white/5 focus:border-orange-500 text-gray-300 text-xs p-3.5 rounded-xl w-full appearance-none focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
+                             value={params.formato}
+                             onChange={(e) => handleParamChange("formato", e.target.value)}
+                             className="bg-neutral-950 border border-white/5 focus:border-orange-500 text-gray-300 text-xs p-3.5 rounded-xl w-full appearance-none focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
                           >
                             <option value="">TODOS</option>
                             {formatsList.map((f) => (
@@ -787,22 +593,6 @@ export default function App() {
                       )}
                     </h3>
 
-                    {hasSearched && directResults.length > 0 && (
-                      <div className="flex justify-end p-1 select-none">
-                        <button
-                          onClick={() => {
-                            directResults.forEach((t) => handleAddTroquelToPliego(t));
-                            setSuccessToast(`¡Se agregaron ${directResults.length} troqueles al pliego!`);
-                            setTimeout(() => setSuccessToast(null), 2500);
-                          }}
-                          className="px-4 py-2 bg-orange-500 hover:bg-orange-400 text-white font-extrabold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer transition-all shadow-md shadow-orange-950/20 active:scale-98"
-                        >
-                          <Layers className="w-3.5 h-3.5" />
-                          Añadir todos a Imprenta ({directResults.length})
-                        </button>
-                      </div>
-                    )}
-
                     {/* LIST OF ELEMENT CARDS */}
                     <div className="space-y-3">
                       {!hasSearched ? (
@@ -869,14 +659,6 @@ export default function App() {
                               </div>
 
                               <div className="flex items-center gap-2 pl-3">
-                                <button
-                                  type="button"
-                                  onClick={() => handleAddTroquelToPliego(item)}
-                                  className="w-11 h-11 bg-neutral-950 hover:bg-orange-500/10 border border-white/5 hover:border-orange-500/40 text-gray-400 hover:text-orange-500 rounded-xl flex items-center justify-center transition-all cursor-pointer"
-                                  title="Añadir a Pliego de Etiquetas"
-                                >
-                                  <Printer className="w-4.5 h-4.5" />
-                                </button>
                                 <button
                                   type="button"
                                   onClick={() => setActiveDrawingCode(codeStr)}
@@ -953,14 +735,6 @@ export default function App() {
                               <div className="flex items-center gap-2 pl-3">
                                 <button
                                   type="button"
-                                  onClick={() => handleAddTroquelToPliego(item)}
-                                  className="w-11 h-11 bg-neutral-950 hover:bg-orange-500/10 border border-white/5 hover:border-orange-500/40 text-gray-400 hover:text-orange-500 rounded-xl flex items-center justify-center transition-all cursor-pointer"
-                                  title="Añadir a Pliego de Etiquetas"
-                                >
-                                  <Printer className="w-4.5 h-4.5" />
-                                </button>
-                                <button
-                                  type="button"
                                   onClick={() => setActiveDrawingCode(codeStr)}
                                   className="w-11 h-11 bg-neutral-950 hover:bg-orange-500/10 border border-white/5 hover:border-orange-500/40 text-gray-400 hover:text-orange-500 rounded-xl flex items-center justify-center transition-all cursor-pointer"
                                   title="Ver Ficha / Plano"
@@ -984,17 +758,6 @@ export default function App() {
                   onSelectTroquel={handleApplyTroquelToSearchParams}
                   onViewDrawing={setActiveDrawingCode}
                   customNotes={customNotes}
-                  onAddPliego={handleAddTroquelToPliego}
-                  onAddMultiplePliegos={handleAddMultipleTroquelesToPliego}
-                />
-              )}
-
-              {/* === TAB 3: LABEL PRINT GENERATOR === */}
-              {activeTab === "labels" && (
-                <LabelGenerator
-                  baseDatos={baseDatos}
-                  customNotes={customNotes}
-                  onBackToSearch={() => setActiveTab("search")}
                 />
               )}
 
@@ -1179,14 +942,6 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
-
-      {/* Dynamic Success Alert toast */}
-      {successToast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#121212] border border-orange-500/30 text-white font-extrabold text-xs py-3.5 px-6 rounded-2xl shadow-2xl flex items-center gap-2 select-none animate-bounce">
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping"></span>
-          <span>{successToast}</span>
-        </div>
-      )}
     </div>
   );
 }
