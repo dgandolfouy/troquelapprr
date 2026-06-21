@@ -3,6 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * AVISO DE PROPIEDAD INTELECTUAL & CERTIFICACIÓN DE AUTORÍA
+ * --------------------------------------------------------
+ * Desarrollado por: Daniel Gandolfo (GUTEN)
+ * Proyecto: Ecosistema RR - Gestor de Troqueles
+ * Fecha: 2024 - 2026
+ * 
+ * © Todos los derechos reservados. El código fuente, arquitectura
+ * y lógica de este software son propiedad intelectual de GUTEN.
+ */
+
 import React, { useEffect, useState, useMemo } from "react";
 import Papa from "papaparse";
 import {
@@ -29,6 +40,7 @@ import { TroquelVisualizer } from "./components/TroquelVisualizer";
 import { DatabaseGrid } from "./components/DatabaseGrid";
 import { FormatIndicator } from "./utils/formatHelper";
 import { LabelGenerator } from "./components/LabelGenerator";
+import { Footer } from "./components/Footer";
 
 const SHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT6EiWfmeqj01h807bJiut1jZWa3Ea_KxMcUBPxGFEiHsHNQWrlFyzs7cpWhe32n37yfxnoxmWitEni/pub?gid=0&single=true&output=csv";
@@ -974,6 +986,8 @@ export default function App() {
                       </div>
                     </div>
                   )}
+                  {/* Footer placed at the bottom of the main search screen */}
+                  <Footer />
                 </>
               )}
 
