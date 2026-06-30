@@ -416,7 +416,7 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
             </h2>
           </div>
           <p className="text-xs text-gray-400">
-            Diseña pliegos con exactamente <span className="text-orange-400 font-bold">4 etiquetas redondas por página</span>. Formato físico fidedigno de 188.13 x 220 mm con taco de registro de sensor.
+            Diseña pliegos con exactamente <span className="text-orange-400 font-bold">4 etiquetas redondas por página</span>. Formato físico fidedigno de 169.32 x 220 mm con taco de registro de sensor.
           </p>
         </div>
 
@@ -764,11 +764,11 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
                   <Printer className="w-4 h-4 text-orange-500" />
                   Previsualización de Pliego ({printPages.length} {printPages.length === 1 ? "Página" : "Páginas"})
                 </h3>
-                <p className="text-[10px] text-gray-500 font-medium">Muestra la maquetación fidedigna de las plantillas físicas de 4 bocas con sangrado de 3mm (188.13 x 220 mm)</p>
+                <p className="text-[10px] text-gray-500 font-medium">Muestra la maquetación fidedigna de las plantillas físicas de 4 bocas con sangrado de 3mm (169.32 x 220 mm)</p>
               </div>
 
               <div className="text-xs text-orange-450 font-mono font-bold uppercase select-none">
-                Papel: 188.13 x 220 mm • 80mm
+                Papel: 169.32 x 220 mm • 80mm
               </div>
             </div>
 
@@ -819,9 +819,9 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
                         id={`screen-page-print-${pageIdx}`}
                         className="relative bg-white text-black shadow-2xl shrink-0 select-none print-sheet animate-fade-in"
                         style={{
-                          width: "188.13mm",
+                          width: "169.32mm",
                           height: "220mm",
-                          minWidth: "188.13mm",
+                          minWidth: "169.32mm",
                           minHeight: "220mm",
                           position: "relative",
                           backgroundColor: "#ffffff",
@@ -829,13 +829,13 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
                         }}
                       >
                         {/* SENSING BLACK MARK (EL "TACO" REGISTRO) - PIXEL PERFECT TO ILLUSTRATOR COORDINATES
-                            Illustrator: Center X=183.299mm, Center Y=6.633mm, Ancho=5mm, Alto=11.64mm.
-                            Left: 183.299mm - 2.5mm = 180.799mm. Top: 6.633mm - (11.64mm/2) = 0.813mm.
+                            Illustrator: Center X=164.49mm, Center Y=6.633mm, Ancho=5mm, Alto=11.64mm.
+                            Left: 164.49mm - 2.5mm = 161.99mm. Top: 6.633mm - (11.64mm/2) = 0.813mm.
                         */}
                         <div 
                           className="absolute bg-black"
                           style={{
-                            left: "180.799mm",
+                            left: "161.99mm",
                             top: "0.813mm",
                             width: "5mm",
                             height: "11.64mm",
@@ -867,10 +867,10 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
                           const typeName = isCirc ? "CIRCULAR" : isFig ? "FIGURA" : isTag ? "TAG PAI" : isPrep ? "PREPICADO" : isRecto ? "CORTE RECTO" : "RECTANGULAR";
                           
                           const positions = [
-                            { left: `${47.588 - 43}mm`, top: `${62.567 - 43}mm` },  // Slot 1: L=4.588mm,  T=19.567mm
-                            { left: `${140.8 - 43}mm`,  top: `${62.567 - 43}mm` },  // Slot 2: L=97.800mm, T=19.567mm
-                            { left: `${47.588 - 43}mm`, top: `${157.572 - 43}mm` }, // Slot 3: L=4.588mm,  T=114.572mm
-                            { left: `${140.8 - 43}mm`,  top: `${157.572 - 43}mm` }  // Slot 4: L=97.800mm, T=114.572mm
+                            { left: `${42.33 - 43}mm`, top: `${68.5 - 43}mm` },  // Slot 1: Center X=42.33mm, Y=68.5mm
+                            { left: `${126.99 - 43}mm`,  top: `${68.5 - 43}mm` },  // Slot 2: Center X=126.99mm, Y=68.5mm
+                            { left: `${42.33 - 43}mm`, top: `${151.5 - 43}mm` }, // Slot 3: Center X=42.33mm, Y=151.5mm
+                            { left: `${126.99 - 43}mm`,  top: `${151.5 - 43}mm` }  // Slot 4: Center X=126.99mm, Y=151.5mm
                           ];
                           const pos = positions[slotIdx];
 
@@ -1121,9 +1121,9 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
             key={pageIdx}
             className="print-sheet-pdf"
             style={{
-              width: "188.13mm",
+              width: "169.32mm",
               height: "220mm",
-              minWidth: "188.13mm",
+              minWidth: "169.32mm",
               minHeight: "220mm",
               position: "relative",
               backgroundColor: "#ffffff",
@@ -1135,7 +1135,7 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
               style={{
                 position: "absolute",
                 backgroundColor: "#000000",
-                left: "180.799mm",
+                left: "161.99mm",
                 top: "0.813mm",
                 width: "5mm",
                 height: "11.64mm",
@@ -1157,10 +1157,10 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
               const typeName = isCirc ? "CIRCULAR" : isFig ? "FIGURA" : isTag ? "TAG PAI" : isPrep ? "PREPICADO" : isRecto ? "CORTE RECTO" : "RECTANGULAR";
               
               const positions = [
-                { left: `${47.588 - 43}mm`, top: `${62.567 - 43}mm` },
-                { left: `${140.8 - 43}mm`,  top: `${62.567 - 43}mm` },
-                { left: `${47.588 - 43}mm`, top: `${157.572 - 43}mm` },
-                { left: `${140.8 - 43}mm`,  top: `${157.572 - 43}mm` }
+                { left: `${42.33 - 43}mm`, top: `${68.5 - 43}mm` },
+                { left: `${126.99 - 43}mm`,  top: `${68.5 - 43}mm` },
+                { left: `${42.33 - 43}mm`, top: `${151.5 - 43}mm` },
+                { left: `${126.99 - 43}mm`,  top: `${151.5 - 43}mm` }
               ];
               const pos = positions[slotIdx];
 
@@ -1371,7 +1371,7 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
       {/* MASTER PRINT MEDIAS LAYER */}
       <style>{`
         @page {
-          size: 188.13mm 220mm;
+          size: 169.32mm 220mm;
           margin: 0;
         }
         @media screen {
@@ -1398,9 +1398,9 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
             overflow: visible !important;
             margin: 0 !important;
             padding: 0 !important;
-            width: 188.13mm !important;
+            width: 169.32mm !important;
             height: 220mm !important;
-            min-width: 188.13mm !important;
+            min-width: 169.32mm !important;
             min-height: 220mm !important;
             border: none !important;
             box-shadow: none !important;
@@ -1413,7 +1413,7 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
             top: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
-            width: 188.13mm !important;
+            width: 169.32mm !important;
             height: 220mm !important;
             background-color: #ffffff !important;
           }
@@ -1423,9 +1423,9 @@ export const LabelGenerator: React.FC<LabelGeneratorProps> = ({
             display: block !important;
             break-after: page !important;
             page-break-after: always !important;
-            width: 188.13mm !important;
+            width: 169.32mm !important;
             height: 220mm !important;
-            min-width: 188.13mm !important;
+            min-width: 169.32mm !important;
             min-height: 220mm !important;
             padding: 0 !important;
             margin: 0 !important;
