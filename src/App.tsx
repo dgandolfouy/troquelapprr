@@ -33,6 +33,7 @@ import {
   Sliders,
   Cog,
   Printer,
+  Ruler,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Troquel, SearchingParams } from "./types";
@@ -40,6 +41,7 @@ import { TroquelVisualizer } from "./components/TroquelVisualizer";
 import { DatabaseGrid } from "./components/DatabaseGrid";
 import { FormatIndicator } from "./utils/formatHelper";
 import { LabelGenerator } from "./components/LabelGenerator";
+import { TaperedLabelGenerator } from "./components/TaperedLabelGenerator";
 import { Footer } from "./components/Footer";
 
 const SHEET_URL =
@@ -72,7 +74,7 @@ export default function App() {
   const [favorites, setFavorites] = useState<Troquel[]>([]);
 
   // Navigation Panel Tab State (Search, Database explorer)
-  const [activeTab, setActiveTab] = useState<"search" | "explorer" | "labels">("search");
+  const [activeTab, setActiveTab] = useState<"search" | "explorer" | "labels" | "tapered">("search");
 
   // Quick toast state
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -596,7 +598,7 @@ export default function App() {
         </p>
 
         {/* TABS SELECTOR */}
-        <div className="flex bg-neutral-900/80 border border-white/5 rounded-xl p-1 mt-6 w-full max-w-sm sm:max-w-md select-none">
+        <div className="flex bg-neutral-900/80 border border-white/5 rounded-xl p-1 mt-6 w-full max-w-md sm:max-w-xl select-none">
           <button
             onClick={() => setActiveTab("search")}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg transition-all duration-250 cursor-pointer ${
@@ -630,11 +632,22 @@ export default function App() {
             <Layers className="w-3.5 h-3.5" />
             Imprenta
           </button>
+          <button
+            onClick={() => setActiveTab("tapered")}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg transition-all duration-250 cursor-pointer ${
+              activeTab === "tapered"
+                ? "bg-orange-500 text-white shadow-lg shadow-orange-950/20"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Ruler className="w-3.5 h-3.5" />
+            Cónicos
+          </button>
         </div>
       </header>
 
       {/* CORE WRAPPER */}
-      <main className={`flex-1 w-full mx-auto px-4 pb-20 z-10 transition-all duration-300 ${activeTab === "labels" ? "max-w-7xl" : "max-w-3xl"}`}>
+      <main className={`flex-1 w-full mx-auto px-4 pb-20 z-10 transition-all duration-300 ${activeTab === "labels" || activeTab === "tapered" ? "max-w-7xl" : "max-w-3xl"}`}>
         {/* CONNECTION LOADING & ERROR STATUSES */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -1010,6 +1023,11 @@ export default function App() {
                   customNotes={customNotes}
                   onBackToSearch={() => setActiveTab("search")}
                 />
+              )}
+
+              {/* === TAB 4: TAPERED LABEL CALCULATOR === */}
+              {activeTab === "tapered" && (
+                <TaperedLabelGenerator />
               )}
 
 
