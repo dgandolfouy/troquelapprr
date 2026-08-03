@@ -13,7 +13,19 @@ import {
   onSnapshot, 
   serverTimestamp 
 } from "firebase/firestore";
-import firebaseConfig from "../firebase-applet-config.json";
+import localConfig from "../firebase-applet-config.json";
+
+// Resolve Firebase configuration prioritizing VITE_ environment variables, fallback to local config
+const env = (import.meta as any).env || {};
+const firebaseConfig = {
+  apiKey: env.VITE_FIREBASE_API_KEY || localConfig?.apiKey,
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || localConfig?.authDomain,
+  projectId: env.VITE_FIREBASE_PROJECT_ID || localConfig?.projectId,
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || localConfig?.storageBucket,
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || localConfig?.messagingSenderId,
+  appId: env.VITE_FIREBASE_APP_ID || localConfig?.appId,
+  firestoreDatabaseId: env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || localConfig?.firestoreDatabaseId,
+};
 
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
@@ -22,6 +34,7 @@ const app = initializeApp(firebaseConfig);
 export const db = firebaseConfig.firestoreDatabaseId 
   ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
   : getFirestore(app);
+
 
 const NOTES_COLLECTION = "troquel_notes";
 
