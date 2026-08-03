@@ -43,6 +43,7 @@ import { FormatIndicator } from "./utils/formatHelper";
 import { LabelGenerator } from "./components/LabelGenerator";
 import { TaperedLabelGenerator } from "./components/TaperedLabelGenerator";
 import { Footer } from "./components/Footer";
+import { subscribeCustomNotes, saveCustomNote } from "./firebase";
 
 const SHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vT6EiWfmeqj01h807bJiut1jZWa3Ea_KxMcUBPxGFEiHsHNQWrlFyzs7cpWhe32n37yfxnoxmWitEni/pub?gid=0&single=true&output=csv";
@@ -307,7 +308,7 @@ export default function App() {
       console.error("Error reading localStorage favorites:", e);
     }
 
-    // Fetch Custom Notes from localStorage
+    // Fetch Custom Notes from localStorage and subscribe to Firestore
     try {
       const storedNotes = localStorage.getItem("troquel_notes");
       if (storedNotes) {
@@ -316,6 +317,15 @@ export default function App() {
     } catch (e) {
       console.error("Error reading localStorage troquel_notes:", e);
     }
+
+    // Subscribe to real-time notes from Firestore across devices
+    const unsubscribeNotes = subscribeCustomNotes((notesMap) => {
+      setCustomNotes(notesMap);
+    });
+
+    return () => {
+      unsubscribeNotes();
+    };
   }, []);
 
   // Update dynamic properties when modal changes
@@ -366,8 +376,8 @@ export default function App() {
     localStorage.setItem("fav_troqueles", JSON.stringify(updated));
   };
 
-  // Save custom notes to local storage and state
-  const handleSaveNote = () => {
+  // Save custom notes to Firestore (cloud sync across all devices) and local state
+  const handleSaveNote = async () => {
     if (!activeDrawingCode) return;
     const trimmed = editingNote.trim();
     const updatedNotes = { ...customNotes, [activeDrawingCode]: trimmed };
@@ -375,7 +385,20 @@ export default function App() {
       delete updatedNotes[activeDrawingCode];
     }
     setCustomNotes(updatedNotes);
-    localStorage.setItem("troquel_notes", JSON.stringify(updatedNotes));
+
+    try {
+      await saveCustomNote(activeDrawingCode, trimmed);
+      setSuccessToast(
+        trimmed
+          ? "¡Descripción guardada en la nube para todas las computadoras!"
+          : "¡Descripción eliminada en todas las computadoras!"
+      );
+      setTimeout(() => setSuccessToast(null), 3000);
+    } catch (err) {
+      console.error("Error saving note to Firestore:", err);
+      setSuccessToast("Error al guardar en la nube");
+      setTimeout(() => setSuccessToast(null), 2500);
+    }
   };
 
   const isFavorite = (item: Troquel) =>
@@ -1148,9 +1171,9 @@ export default function App() {
                       <div className="pt-4 border-t border-white/5 space-y-2">
                         <div className="flex justify-between items-center select-none">
                           <label className="text-[10px] uppercase text-gray-400 font-extrabold tracking-wider flex items-center gap-1">
-                            <span>📋 Notas o etiquetas de taller</span>
+                            <span>📋 Descripciones / Nombre de cliente (Nube)</span>
                           </label>
-                          <span className="text-[9px] text-gray-500 italic">Buscable por palabra clave</span>
+                          <span className="text-[9px] text-orange-400 font-semibold italic">☁️ Sincronizado para todos los dispositivos</span>
                         </div>
                         <div className="flex gap-2">
                           <input
@@ -1163,7 +1186,7 @@ export default function App() {
                               }
                             }}
                             className="flex-1 bg-neutral-950 border border-white/5 focus:border-orange-500/40 text-orange-400 text-xs font-semibold p-2.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500/40"
-                            placeholder="Escribe etiquetas, formas (ej: cocardas, banderas) o clientes..."
+                            placeholder="Escribe el nombre del cliente, material (ej: COUCHÉ, BOPP), etiquetas..."
                           />
                           <button
                             type="button"
