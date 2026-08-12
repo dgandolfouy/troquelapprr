@@ -71,6 +71,9 @@ export default function App() {
   // active search toggle
   const [hasSearched, setHasSearched] = useState(false);
 
+  // Sorting preference for search results ("medida" by default, or "codigo")
+  const [searchSortBy, setSearchSortBy] = useState<"medida" | "codigo">("medida");
+
   // Favorites state
   const [favorites, setFavorites] = useState<Troquel[]>([]);
 
@@ -436,6 +439,24 @@ export default function App() {
     setHasSearched(true);
   };
 
+  // Helper to sort troqueles list by "medida" (Ancho x Largo) or "codigo" (Número de Troquel)
+  const sortTroquelesList = (items: Troquel[], sortBy: "medida" | "codigo") => {
+    return [...items].sort((a, b) => {
+      if (sortBy === "medida") {
+        const wA = parseFloat(String(a.Ancho)) || 0;
+        const wB = parseFloat(String(b.Ancho)) || 0;
+        if (wA !== wB) return wA - wB;
+        const lA = parseFloat(String(a.Largo)) || 0;
+        const lB = parseFloat(String(b.Largo)) || 0;
+        return lA - lB;
+      } else {
+        const codeA = String(a.Codigo || "");
+        const codeB = String(b.Codigo || "");
+        return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: "base" });
+      }
+    });
+  };
+
   // Direct results calculations
   const directResults = useMemo(() => {
     if (!dataLoaded) return [];
@@ -452,7 +473,7 @@ export default function App() {
     const filterFmt = params.formato.trim().toUpperCase();
     const filterCode = params.codigo.trim().toUpperCase();
 
-    return baseDatos.filter((item) => {
+    const filtered = baseDatos.filter((item) => {
       if (!item.Codigo) return false;
 
       let matchCode = true;
@@ -496,7 +517,9 @@ export default function App() {
 
       return matchCode && matchFormat && matchAncho && matchLargo && matchKeyword;
     });
-  }, [baseDatos, dataLoaded, params, hasSearched, customNotes]);
+
+    return sortTroquelesList(filtered, searchSortBy);
+  }, [baseDatos, dataLoaded, params, hasSearched, customNotes, searchSortBy]);
 
   // Inverted results calculations (Rotas suggestions)
   const invertedResults = useMemo(() => {
@@ -512,7 +535,7 @@ export default function App() {
     const filterFmt = params.formato.trim().toUpperCase();
     const filterCode = params.codigo.trim().toUpperCase();
 
-    return baseDatos.filter((item) => {
+    const filtered = baseDatos.filter((item) => {
       if (!item.Codigo) return false;
 
       // Avoid redundant duplicates: if already printed in directResults, don't repeat here
@@ -556,7 +579,9 @@ export default function App() {
 
       return matchCode && matchFormat && matchAnchoInverted && matchLargoInverted && matchKeyword;
     });
-  }, [baseDatos, dataLoaded, params, directResults, customNotes]);
+
+    return sortTroquelesList(filtered, searchSortBy);
+  }, [baseDatos, dataLoaded, params, directResults, customNotes, searchSortBy]);
 
   // Unique layout categories
   const formatsList = useMemo(() => {
@@ -835,19 +860,37 @@ export default function App() {
                       )}
                     </h3>
 
-                    {hasSearched && directResults.length > 0 && (
-                      <div className="flex justify-end p-1 select-none">
-                        <button
-                          onClick={() => {
-                            directResults.forEach((t) => handleAddTroquelToPliego(t));
-                            setSuccessToast(`¡Se agregaron ${directResults.length} troqueles al pliego!`);
-                            setTimeout(() => setSuccessToast(null), 2500);
-                          }}
-                          className="px-4 py-2 bg-orange-500 hover:bg-orange-400 text-white font-extrabold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer transition-all shadow-md shadow-orange-950/20 active:scale-98"
-                        >
-                          <Layers className="w-3.5 h-3.5" />
-                          Añadir todos a Imprenta ({directResults.length})
-                        </button>
+                    {/* SORTING SELECTOR & BULK ACTION BAR */}
+                    {hasSearched && (directResults.length > 0 || invertedResults.length > 0) && (
+                      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2.5 bg-neutral-900/60 p-3 px-4 rounded-2xl border border-white/5 select-none">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[11px] text-gray-400 font-bold flex items-center gap-1.5 whitespace-nowrap">
+                            <Sliders className="w-3.5 h-3.5 text-orange-400" />
+                            <span>Ordenar lista por:</span>
+                          </label>
+                          <select
+                            value={searchSortBy}
+                            onChange={(e) => setSearchSortBy(e.target.value as "medida" | "codigo")}
+                            className="bg-neutral-950 border border-white/10 text-xs font-extrabold text-orange-400 rounded-xl p-2 px-3 focus:border-orange-500 outline-none cursor-pointer flex-1 sm:flex-initial"
+                          >
+                            <option value="medida">📐 Medida (Ancho × Largo)</option>
+                            <option value="codigo">🔢 Número de Troquel (Código)</option>
+                          </select>
+                        </div>
+
+                        {directResults.length > 0 && (
+                          <button
+                            onClick={() => {
+                              directResults.forEach((t) => handleAddTroquelToPliego(t));
+                              setSuccessToast(`¡Se agregaron ${directResults.length} troqueles al pliego!`);
+                              setTimeout(() => setSuccessToast(null), 2500);
+                            }}
+                            className="px-3.5 py-2 bg-orange-500 hover:bg-orange-400 text-white font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-md shadow-orange-950/20 active:scale-98"
+                          >
+                            <Layers className="w-3.5 h-3.5" />
+                            Añadir todos a Imprenta ({directResults.length})
+                          </button>
+                        )}
                       </div>
                     )}
 

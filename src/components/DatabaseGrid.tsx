@@ -30,7 +30,7 @@ export const DatabaseGrid: React.FC<DatabaseGridProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [selectedFormat, setSelectedFormat] = React.useState("");
-  const [sortField, setSortField] = React.useState<SortField>("Codigo");
+  const [sortField, setSortField] = React.useState<SortField>("Ancho");
   const [sortDirection, setSortDirection] = React.useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 12;
@@ -74,7 +74,18 @@ export const DatabaseGrid: React.FC<DatabaseGridProps> = ({
       let valB: string | number = b[sortField] ?? "";
 
       // Try parsing numeric values for Width, Length, Runs, and Gears
-      if (sortField === "Ancho" || sortField === "Largo" || sortField === "Carreras" || sortField === "Engranaje") {
+      if (sortField === "Ancho") {
+        const numA = parseFloat(String(valA)) || 0;
+        const numB = parseFloat(String(valB)) || 0;
+        if (numA !== numB) {
+          return sortDirection === "asc" ? numA - numB : numB - numA;
+        }
+        const numLargoA = parseFloat(String(a.Largo)) || 0;
+        const numLargoB = parseFloat(String(b.Largo)) || 0;
+        return sortDirection === "asc" ? numLargoA - numLargoB : numLargoB - numLargoA;
+      }
+
+      if (sortField === "Largo" || sortField === "Carreras" || sortField === "Engranaje") {
         const numA = parseFloat(String(valA)) || 0;
         const numB = parseFloat(String(valB)) || 0;
         return sortDirection === "asc" ? numA - numB : numB - numA;
